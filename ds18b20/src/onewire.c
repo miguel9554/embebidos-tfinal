@@ -37,12 +37,13 @@
 /*==================[inclusions]=============================================*/
 
 #include "sapi.h"
+#include "onewire.h"
 
 /*==================[macros and definitions]=================================*/
 
-#define owREAD()	Chip_GPIO_GetPinState(LPC_GPIO_PORT, 3, 0)
-#define owLOW()		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 3, 0)
-#define owHIGH()	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 3, 0)
+#define owREAD()	Chip_GPIO_GetPinState(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
+#define owLOW()		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
+#define owHIGH()	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
 
 /*==================[internal data declaration]==============================*/
 
@@ -173,22 +174,22 @@ static void owCmd(uint8_t cmd, void * buffer, uint8_t n)
 
 void owIN(){
 	Chip_SCU_PinMux(
-	            6,
-	            1,
+				PINNAMEPORT,
+				PINNAMEPIN,
 	            SCU_MODE_PULLUP | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS,
 				SCU_MODE_FUNC0
 	         );
-	Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, 3, 0);
+	Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, GPIOPORT, GPIOPIN);
 }
 
 void owOUT(){
 	Chip_SCU_PinMux(
-	            6,
-	            1,
+				PINNAMEPORT,
+				PINNAMEPIN,
 	            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
 				SCU_MODE_FUNC0
 	         );
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 3, 0);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, GPIOPORT, GPIOPIN);
 }
 
 /*==================[external functions definition]==========================*/
@@ -197,11 +198,6 @@ void owInit(void)
 {
 	/* Init cycle counter */
     *DWT_CTRL |= 1;
-
-    /* Init pin P0.20 */
-    Chip_SCU_PinMux(6, 1,
-    		SCU_MODE_PULLUP,
-			SCU_MODE_FUNC0);
 
     owIN();
 }

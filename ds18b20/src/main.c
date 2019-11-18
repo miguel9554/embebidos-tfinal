@@ -92,7 +92,7 @@ int main(void)
 		temp = owReadTemperature();
 		sprintf(str, "temp:%d.%04d\r\n", temp >> 4, (temp & 0xF) * 625);
 		debugPrintString(str);
-		Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, 0, 30);
+		Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, GPIOPORT, GPIOPIN);
 		delay(DELAY_MS);
 	}
 }
