@@ -39,9 +39,10 @@
 
 /*==================[inclusions]=============================================*/
 
-#include "pico.h"
+#include "main.h"
 #include "onewire.h"
-#include "board.h"
+#include "sapi.h"
+DEBUG_PRINT_ENABLE;
 
 /*==================[macros and definitions]=================================*/
 
@@ -57,7 +58,6 @@ static void initHardware(void);
 /** @brief delay function
  * @param t desired milliseconds to wait
  */
-static void pausems(uint32_t t);
 
 /*==================[internal data definition]===============================*/
 
@@ -73,23 +73,11 @@ static void initHardware(void)
 	SystemCoreClockUpdate();
 	Board_Init();
 	SysTick_Config(SystemCoreClock / 1000);
+	debugPrintConfigUart( UART_USB, 115200 );
 	owInit();
 }
 
-static void pausems(uint32_t t)
-{
-	pausems_count = t;
-	while (pausems_count != 0) {
-		__WFI();
-	}
-}
-
 /*==================[external functions definition]==========================*/
-
-void SysTick_Handler(void)
-{
-	if(pausems_count > 0) pausems_count--;
-}
 
 int main(void)
 {
@@ -102,9 +90,9 @@ int main(void)
 		/* read DS18B20 temperature sensor */
 		temp = owReadTemperature();
 		sprintf(str, "temp:%d.%04d\r\n", temp >> 4, (temp & 0xF) * 625);
-		DEBUGSTR(str);
-		Chip_GPIO_SetPinToggle(LPC_GPIO, 0, 30);
-		pausems(DELAY_MS);
+		debugPrintString(str);
+		Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, 0, 30);
+		delay(DELAY_MS);
 	}
 }
 

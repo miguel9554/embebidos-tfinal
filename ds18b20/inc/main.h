@@ -31,8 +31,8 @@
  *
  */
 
-#ifndef _PICO_H_
-#define _PICO_H_
+#ifndef _MAIN_H_
+#define _MAIN_H_
 
 /** \addtogroup blink Bare-metal blink example
  ** @{ */
@@ -46,6 +46,8 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+
+#define DEBUG_ENABLE
 
 /** delay in milliseconds */
 #define DELAY_MS 500

@@ -39,15 +39,15 @@ PROJECT_MODULES := modules/$(TARGET)/sapi \
                    modules/$(TARGET)/chip
 
 # source files folder
-PROJECT_SRC_FOLDERS := $(PROJECT)/src
+PROJECT_SRC_FOLDERS := $(PROJECT)/src \
+                       $(PROJECT)/gen
 
 # header files folder
-PROJECT_INC_FOLDERS := $(PROJECT)/inc
+PROJECT_INC_FOLDERS := $(PROJECT)/inc \
+                       $(PROJECT)/gen
 
 # source files
-PROJECT_C_FILES := $(wildcard $(PROJECT)/src/*.c)
+PROJECT_C_FILES := $(wildcard $(PROJECT)/src/*.c) \
+                   $(wildcard $(PROJECT)/gen/*.c)
 
 PROJECT_ASM_FILES := $(wildcard $(PROJECT)/src/*.S)
-
-EXTERN_LIBS += c rdimon
-

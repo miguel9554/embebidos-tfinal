@@ -36,15 +36,15 @@
 
 /*==================[inclusions]=============================================*/
 
-#include "board.h"
+#include "sapi.h"
 
 /*==================[macros and definitions]=================================*/
 
-#define owOUT()		Chip_GPIO_SetPinDIROutput(LPC_GPIO, 0, 20)
-#define owIN()		Chip_GPIO_SetPinDIRInput(LPC_GPIO, 0, 20)
-#define owREAD()	Chip_GPIO_GetPinState(LPC_GPIO, 0, 20)
-#define owLOW()		Chip_GPIO_SetPinOutLow(LPC_GPIO, 0, 20)
-#define owHIGH()	Chip_GPIO_SetPinOutHigh(LPC_GPIO, 0, 20)
+#define owOUT()		Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 3, 0) // GPIO0
+#define owIN()		Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, 3, 0)
+#define owREAD()	Chip_GPIO_GetPinState(LPC_GPIO_PORT, 3, 0)
+#define owLOW()		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 3, 0)
+#define owHIGH()	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 3, 0)
 
 /*==================[internal data declaration]==============================*/
 
@@ -58,14 +58,6 @@ static volatile uint32_t * DWT_CYCCNT = (uint32_t *)0xE0001004;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-
-static void pauseus(uint32_t t)
-{
-   *DWT_CTRL |= 1;
-	*DWT_CYCCNT = 0;
-	t *= (SystemCoreClock/1000000);
-	while(*DWT_CYCCNT < t);
-}
 
 static uint8_t owCrc(uint8_t code[], uint8_t n)
 {
@@ -113,13 +105,13 @@ static uint8_t owCrc(uint8_t code[], uint8_t n)
 
 static int owPresence(void)
 {
-    pauseus(1000);
+    delayUs(1000);
 
 	owOUT();
 	owLOW();
-	pauseus(480);
+	delayUs(480);
 	owIN();
-	pauseus(40);
+	delayUs(40);
 
 	if(owREAD()==true)
 	{
@@ -143,16 +135,16 @@ static void owCmd(uint8_t cmd, void * buffer, uint8_t n)
 		if(cmd & i)
 		{
 			owLOW();
-			pauseus(3);
+			delayUs(3);
 			owHIGH();
-			pauseus(60);
+			delayUs(60);
 		}
 		else
 		{
 			owLOW();
-			pauseus(60);
+			delayUs(60);
 			owHIGH();
-			pauseus(10);
+			delayUs(10);
 		}
 		if(i==0x80)
 		{
@@ -171,12 +163,12 @@ static void owCmd(uint8_t cmd, void * buffer, uint8_t n)
 		{
 			owOUT();
 			owLOW();
-			pauseus(3);
+			delayUs(3);
 			owIN();
-			pauseus(12);
+			delayUs(12);
 			p[i] >>= 1;
 			if(owREAD()) p[i] |= 0x80;
-			pauseus(55);
+			delayUs(55);
 		}
 	}
 }
@@ -189,9 +181,9 @@ void owInit(void)
     *DWT_CTRL |= 1;
 
     /* Init pin P0.20 */
-    Chip_IOCON_PinMux(LPC_IOCON, 0, 20,
-    		IOCON_MODE_PULLUP | IOCON_GPIO_MODE | IOCON_DIGITAL_EN,
-			IOCON_FUNC0);
+    Chip_SCU_PinMux(6, 1,
+    		SCU_MODE_PULLUP,
+			SCU_MODE_FUNC0);
 
     owIN();
 }
@@ -204,7 +196,7 @@ int owReadROM(void * buffer8)
 
 	if(owPresence()==0)
 	{
-		pauseus(400);
+		delayUs(400);
 
 		__set_PRIMASK(1);
 
@@ -230,7 +222,7 @@ int owReadScratch(void * buffer9)
 
 	if(owPresence()==0)
 	{
-		pauseus(400);
+		delayUs(400);
 
 		__set_PRIMASK(1);
 
@@ -258,7 +250,7 @@ int owReadTemperature(void)
 
 	if(owPresence()==0)
 	{
-		pauseus(400);
+		delayUs(400);
 
 		__set_PRIMASK(1);
 
@@ -273,7 +265,7 @@ int owReadTemperature(void)
 
 		owPresence();
 
-		pauseus(400);
+		delayUs(400);
 
 		__set_PRIMASK(1);
 
