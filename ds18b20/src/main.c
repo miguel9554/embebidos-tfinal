@@ -73,6 +73,7 @@ static void initHardware(void)
 	SystemCoreClockUpdate();
 	Board_Init();
 	SysTick_Config(SystemCoreClock / 1000);
+	tickConfig( 1 );
 	debugPrintConfigUart( UART_USB, 115200 );
 	owInit();
 }

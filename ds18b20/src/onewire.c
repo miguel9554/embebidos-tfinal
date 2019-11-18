@@ -40,8 +40,6 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define owOUT()		Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 3, 0) // GPIO0
-#define owIN()		Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, 3, 0)
 #define owREAD()	Chip_GPIO_GetPinState(LPC_GPIO_PORT, 3, 0)
 #define owLOW()		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 3, 0)
 #define owHIGH()	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 3, 0)
@@ -171,6 +169,26 @@ static void owCmd(uint8_t cmd, void * buffer, uint8_t n)
 			delayUs(55);
 		}
 	}
+}
+
+void owIN(){
+	Chip_SCU_PinMux(
+	            6,
+	            1,
+	            SCU_MODE_PULLUP | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS,
+				SCU_MODE_FUNC0
+	         );
+	Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, 3, 0);
+}
+
+void owOUT(){
+	Chip_SCU_PinMux(
+	            6,
+	            1,
+	            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
+				SCU_MODE_FUNC0
+	         );
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 3, 0);
 }
 
 /*==================[external functions definition]==========================*/
