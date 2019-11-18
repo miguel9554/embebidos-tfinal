@@ -1,5 +1,4 @@
-#include "chip.h"
-#include "board.h"
+#include "sapi.h"
 
 int main(void)
 {
@@ -7,9 +6,9 @@ int main(void)
 	Board_Init();
 
 	int pinNamePort = 6;
-	int pinNamePin  = 12;
-	int gpioPort    = 2;
-	int gpioPin     = 8;
+	int pinNamePin  = 1;
+	int gpioPort    = 3;
+	int gpioPin     = 0;
 
 	Chip_SCU_PinMux(
 	            pinNamePort,
@@ -20,8 +19,13 @@ int main(void)
 	Chip_GPIO_SetPinDIROutput( LPC_GPIO_PORT, gpioPort, gpioPin);
 	Chip_GPIO_SetPinOutLow( LPC_GPIO_PORT, gpioPort, gpioPin);
 
+	tickConfig( 1 );
+
 
 	while(1){
-
+		Chip_GPIO_SetPinOutLow( LPC_GPIO_PORT, gpioPort, gpioPin);
+		delay(1000);
+		Chip_GPIO_SetPinOutHigh( LPC_GPIO_PORT, gpioPort, gpioPin);
+		delay(1000);
 	}
 }
