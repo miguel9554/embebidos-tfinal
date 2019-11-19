@@ -68,6 +68,7 @@ ESP01 (ESP8266) connections:
 
 /*==================[macros and definitions]=================================*/
 
+#define BUF_LEN 4096
 #define BAUD_RATE 115200 // Baudrate por defecto del ESP8266
 
 /*==================[internal data declaration]==============================*/
@@ -75,6 +76,9 @@ ESP01 (ESP8266) connections:
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+
+static char buffer[BUF_LEN];
+uint16_t buffer_position = 0;
 
 /*==================[external data definition]===============================*/
 
@@ -127,7 +131,9 @@ int main(void){
    uartConfig( UART_232, BAUD_RATE );
 
    uint8_t dato  = 0;
+   uint8_t i = 0;
    
+
    imprimirMensajeDeBienvenida();
 
    /* ------------- REPETIR POR SIEMPRE ------------- */
@@ -142,8 +148,23 @@ int main(void){
 
       /* Si recibe un byte de la UART_USB lo guardarlo en la variable dato. */
       if( uartReadByte( UART_USB, &dato ) ){
-         /* Se reenvía el dato a la UART_232 realizando un puente entre ambas */
-         uartWriteByte( UART_232, dato );
+
+    	 /* Guardamos el dato en el buffer*/
+    	 buffer[buffer_position] = dato;
+    	 buffer_position++;
+
+    	 /* Si leimos un salto de línea (valor ASCII 10), mandamos lo que tenemos guardado*/
+    	 if (dato == 10){
+
+    		 /* Vamos escribiendo de a uno los datos, y borrándolos del buffer */
+    		 for(i = 0; i < buffer_position; i++) {
+    			 	 uartWriteByte( UART_232, buffer[i]);
+    			 	 buffer[i] = 0;
+    		     }
+
+    		 /* Dejamos al buffer vacío*/
+    		 buffer_position = 0;
+    	 }
       }
 
       /* Si recibe un byte de la UART_232 lo guardarlo en la variable dato. */
