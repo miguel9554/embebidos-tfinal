@@ -1,6 +1,8 @@
-/* Copyright 2015, Pablo Ridolfi
+/* Copyright 2016, Marcelo Vieytes.
+ * Copyright 2017, Pablo Gomez - Agustin Bassi.
+ * All rights reserved.
  *
- * This file is part of ESP8266_App.
+ * This file is part sAPI library for microcontrollers.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,12 +32,12 @@
  *
  */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+/* Date: 2017-14-11 */
+
+#ifndef _ESP8266_HTTO_SERVER_H_
+#define _ESP8266_HTTO_SERVER_H_
 
 /*==================[inclusions]=============================================*/
-
-#include "board.h"
 
 /*==================[cplusplus]==============================================*/
 
@@ -58,4 +60,4 @@ extern "C" {
 #endif
 
 /*==================[end of file]============================================*/
-#endif /* #ifndef _MAIN_H_ */
+#endif /* #ifndef _ESP8266_HTTO_SERVER_H_ */

@@ -146,15 +146,12 @@ int main(void){
          gpioWrite( LEDB, OFF );
       }
 
-      /* Si recibe un byte de la UART_USB lo guardarlo en la variable dato. */
+      /* Si recibo un byte de la UART_USB lo guardo en la variable dato. */
       if( uartReadByte( UART_USB, &dato ) ){
 
-    	 /* Guardamos el dato en el buffer*/
-    	 buffer[buffer_position] = dato;
-    	 buffer_position++;
-
-    	 /* Si leimos un salto de línea (valor ASCII 10), mandamos lo que tenemos guardado*/
-    	 if (dato == 10){
+    	 /* Si leímos un salto de línea (valor ASCII 10) o retorno de carro (valor ASCII 13) y además tenemos datos
+    	  * en el buffer (buffer_position no está en cero), mandamos lo que tenemos guardado*/
+    	 if ((dato == 13 || dato == 10) && buffer_position ){
 
     		 /* Vamos escribiendo de a uno los datos, y borrándolos del buffer */
     		 for(i = 0; i < buffer_position; i++) {
@@ -162,8 +159,20 @@ int main(void){
     			 	 buffer[i] = 0;
     		     }
 
+    		 /* Mandamos el salto de linea y retorno de carro */
+    		 uartWriteByte( UART_232, 13);
+    		 uartWriteByte( UART_232, 10);
+
     		 /* Dejamos al buffer vacío*/
     		 buffer_position = 0;
+
+
+    	 }
+    	 /* Si hay dato y no es salto de linea o retorno de carro, lo guardo */
+    	 else if (dato != 13 && dato != 10){
+    		 /* Guardamos el dato en el buffer*/
+			 buffer[buffer_position] = dato;
+			 buffer_position++;
     	 }
       }
 
