@@ -1,8 +1,4 @@
-/* Copyright 2015-2016, Eric Pernia.
- * All rights reserved.
- *
- * This file is part sAPI library for microcontrollers.
- *
+/* Copyright 2015, Pablo Ridolfi
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -31,32 +27,53 @@
  *
  */
 
-/* Date: 2015-09-23 */
+/** @brief Brief for this file.
+ **
+ **/
 
-#ifndef _UART_BRIDGE_ESP8266_H_
-#define _UART_BRIDGE_ESP8266_H_
+/** \addtogroup groupName Group Name
+ ** @{ */
 
 /*==================[inclusions]=============================================*/
 
-/*==================[cplusplus]==============================================*/
+#include "httpserver.h"
+#include "sapi.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-/*==================[macros]=================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
+/*==================[external data definition]===============================*/
 
-#ifdef __cplusplus
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+char * configHTTPserver(http_server * server){
+
+	bool error = false;
+	delay_t wifiDelay;
+
+	delayConfig(&wifiDelay, server->wifi_max_delay);
+
+	while (!esp8266ConfigHttpServer(server->wifi_name, server->wifi_pass, 0, 0) && !error){
+			if (delayRead(&wifiDelay)){
+				error = true;
+			}
+		}
+
+	if (error){
+		return NULL;
+	} else {
+		return esp8266GetIpAddress();
+	}
 }
-#endif
 
-/*==================[end of file]============================================*/
-#endif /* #ifndef _UART_BRIDGE_ESP8266_H_ */
+
+/** @} doxygen end group definition */
+	/*==================[end of file]============================================*/

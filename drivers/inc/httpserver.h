@@ -1,9 +1,4 @@
-/* Copyright 2016, Marcelo Vieytes.
- * Copyright 2017, Pablo Gomez - Agustin Bassi.
- * All rights reserved.
- *
- * This file is part sAPI library for microcontrollers.
- *
+/* Copyright 2015, Pablo Ridolfi
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -32,12 +27,21 @@
  *
  */
 
-/* Date: 2017-14-11 */
+#ifndef APPLICATION_INC_HTTPSERVER_H_
+#define APPLICATION_INC_HTTPSERVER_H_
+/** @brief Brief for this header file.
+ **
+ ** Full description for this header file.
+ **
+ **/
 
-#ifndef _ESP8266_HTTO_SERVER_H_
-#define _ESP8266_HTTO_SERVER_H_
+/** \addtogroup groupName Group Name
+ ** @{ */
+
 
 /*==================[inclusions]=============================================*/
+
+#include "sapi.h"
 
 /*==================[cplusplus]==============================================*/
 
@@ -51,7 +55,16 @@ extern "C" {
 
 /*==================[external data declaration]==============================*/
 
+typedef struct {
+	char * wifi_name;
+	char * wifi_pass;
+	tick_t wifi_max_delay;
+} http_server;
+
+
 /*==================[external functions declaration]=========================*/
+
+char * configHTTPserver(http_server *);
 
 /*==================[cplusplus]==============================================*/
 
@@ -59,5 +72,8 @@ extern "C" {
 }
 #endif
 
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _ESP8266_HTTO_SERVER_H_ */
+
+
+#endif /* APPLICATION_INC_ONEWIRE_H_ */
