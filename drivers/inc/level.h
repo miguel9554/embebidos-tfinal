@@ -60,12 +60,13 @@ typedef struct {
 	uint8_t scu_pin;
 	uint8_t gpio_port;
 	uint8_t gpio_pin;
+	uint8_t scu_function;
 } level_sensor;
 
 
 /*==================[external functions declaration]=========================*/
 
-void configLevelSensor(level_sensor *);
+void configLevelSensor(level_sensor *, uint8_t);
 
 bool readLevelSensor(level_sensor *);
 

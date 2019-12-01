@@ -37,6 +37,7 @@
 /*==================[inclusions]=============================================*/
 
 #include "level.h"
+#include "portsMapping.h"
 #include "sapi.h"
 
 /*==================[macros and definitions]=================================*/
@@ -53,15 +54,19 @@
 
 /*==================[external functions definition]==========================*/
 
-void configLevelSensor(level_sensor * level_sensor){
+void configLevelSensor(level_sensor * level_sensor, uint8_t eduCIAAgpio){
 
-	/*TIENE QUE IR A LOS DOS RELES DE AFUERA*/
+	level_sensor->scu_port = gpioPortsMapping[eduCIAAgpio][0];
+	level_sensor->scu_pin = gpioPortsMapping[eduCIAAgpio][1];
+	level_sensor->gpio_port = gpioPortsMapping[eduCIAAgpio][2];
+	level_sensor->gpio_pin = gpioPortsMapping[eduCIAAgpio][3];
+	level_sensor->scu_function = gpioPortsMapping[eduCIAAgpio][4];
 
 	Chip_SCU_PinMux(
 					level_sensor->scu_port,
 					level_sensor->scu_pin,
 		            SCU_MODE_PULLUP | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS,
-					SCU_MODE_FUNC0
+					level_sensor->scu_function
 		         );
 		Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, level_sensor->gpio_port, level_sensor->gpio_pin);
 }

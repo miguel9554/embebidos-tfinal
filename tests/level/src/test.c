@@ -44,10 +44,7 @@
 
 /* LEVEL -> GPIO1 */
 
-#define LEVELSENSOR_SCUPORT		6
-#define LEVELSENSOR_SCUPIN		4
-#define LEVELSENSOR_GPIOPORT	3
-#define LEVELSENSOR_GPIOPIN		3
+#define LEVELSENSOR_GPIOPORT 1
 
 
 /*==================[internal data declaration]==============================*/
@@ -70,8 +67,8 @@ int main(void){
 
    /* Inicializar la placa */
 	Board_Init();
-	level_sensor level_sensor = { LEVELSENSOR_SCUPORT, LEVELSENSOR_SCUPIN, LEVELSENSOR_GPIOPORT, LEVELSENSOR_GPIOPIN };
-	configLevelSensor(&level_sensor);
+	level_sensor level_sensor;
+	configLevelSensor(&level_sensor, LEVELSENSOR_GPIOPORT);
 	bool level_reached = false;
 
    /* ------------- REPETIR POR SIEMPRE ------------- */
