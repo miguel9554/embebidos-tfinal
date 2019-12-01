@@ -66,7 +66,7 @@ void configValve(valve * valve, uint8_t eduCIAAgpio){
 					valve->scu_port,
 					valve->scu_pin,
 		            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
-					SCU_MODE_FUNC0
+					valve->scu_function
 		         );
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, valve->gpio_port, valve->gpio_pin);
 
