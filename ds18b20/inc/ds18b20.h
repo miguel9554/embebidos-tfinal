@@ -48,6 +48,8 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+
+/* GPIO0 */
 #define PINNAMEPORT 6
 #define PINNAMEPIN  1
 #define GPIOPORT    3

@@ -63,7 +63,7 @@ DEBUG_PRINT_ENABLE;
 /* FUNCION que se ejecuta cada vez que ocurre un Tick. */
 void heaterControl( void * notUsed){
 
-	int temp = 1;
+	int temp;
 	float fTemp;
 	char str[20];
 

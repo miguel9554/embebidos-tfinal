@@ -40,7 +40,7 @@
 /*==================[inclusions]=============================================*/
 
 #include "main.h"
-#include "onewire.h"
+#include "ds18b20.h"
 #include "sapi.h"
 DEBUG_PRINT_ENABLE;
 

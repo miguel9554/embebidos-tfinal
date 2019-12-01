@@ -36,8 +36,9 @@
 
 /*==================[inclusions]=============================================*/
 
+#include "ds18b20.h"
+
 #include "sapi.h"
-#include "onewire.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -48,9 +49,14 @@
 /*==================[internal data declaration]==============================*/
 
 static volatile uint32_t * DWT_CTRL = (uint32_t *)0xE0001000;
-static volatile uint32_t * DWT_CYCCNT = (uint32_t *)0xE0001004;
+// static volatile uint32_t * DWT_CYCCNT = (uint32_t *)0xE0001004;
 
 /*==================[internal functions declaration]=========================*/
+static uint8_t owCrc(uint8_t *, uint8_t);
+static int owPresence(void);
+static void owCmd(uint8_t, void *, uint8_t);
+void owIN();
+void owOUT();
 
 /*==================[internal data definition]===============================*/
 
