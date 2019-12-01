@@ -1,4 +1,8 @@
-/* Copyright 2015, Pablo Ridolfi
+/* Copyright 2016, Eric Pernia.
+ * All rights reserved.
+ *
+ * This file is part sAPI library for microcontrollers.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -27,19 +31,24 @@
  *
  */
 
-/** @brief Brief for this file.
- **
- **/
-
-/** \addtogroup groupName Group Name
- ** @{ */
+/*
+ * Date: 2016-04-26
+ */
 
 /*==================[inclusions]=============================================*/
 
-#include "level.h"
-#include "sapi.h"
+#include "../../../../tfinal/drivers/inc/level.h"
+#include "sapi.h"         // <= sAPI header
 
 /*==================[macros and definitions]=================================*/
+
+/* LEVEL -> GPIO1 */
+
+#define LEVELSENSOR_SCUPORT		6
+#define LEVELSENSOR_SCUPIN		4
+#define LEVELSENSOR_GPIOPORT	3
+#define LEVELSENSOR_GPIOPIN		3
+
 
 /*==================[internal data declaration]==============================*/
 
@@ -53,25 +62,33 @@
 
 /*==================[external functions definition]==========================*/
 
-void configLevelSensor(level_sensor * level_sensor){
 
-	/*TIENE QUE IR A LOS DOS RELES DE AFUERA*/
+/* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
+int main(void){
 
-	Chip_SCU_PinMux(
-					level_sensor->scu_port,
-					level_sensor->scu_pin,
-		            SCU_MODE_PULLUP | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS,
-					SCU_MODE_FUNC0
-		         );
-		Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, level_sensor->gpio_port, level_sensor->gpio_pin);
+   /* ------------- INICIALIZACIONES ------------- */
+
+   /* Inicializar la placa */
+	Board_Init();
+	level_sensor level_sensor = { LEVELSENSOR_SCUPORT, LEVELSENSOR_SCUPIN, LEVELSENSOR_GPIOPORT, LEVELSENSOR_GPIOPIN };
+	configLevelSensor(&level_sensor);
+	bool level_reached = false;
+
+   /* ------------- REPETIR POR SIEMPRE ------------- */
+   while(1) {
+	   level_reached = readLevelSensor(&level_sensor);
+	   if (level_reached){
+		   gpioWrite(LEDB, true);
+		   gpioWrite(LEDR, false);
+	   } else {
+		   gpioWrite(LEDR, true);
+		   gpioWrite(LEDB, false);
+	   }
+   }
+
+   /* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
+      por ningun S.O. */
+   return 0 ;
 }
 
-
-/* devuelve true si se llegó al nivel */
-
-bool readLevelSensor(level_sensor * level_sensor){
-	return Chip_GPIO_GetPinState(LPC_GPIO_PORT, level_sensor->gpio_port, level_sensor->gpio_pin);
-}
-
-/** @} doxygen end group definition */
-	/*==================[end of file]============================================*/
+/*==================[end of file]============================================*/
