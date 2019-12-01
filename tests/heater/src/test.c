@@ -46,10 +46,8 @@ DEBUG_PRINT_ENABLE;
 
 /* HEATER -> GPIO2 */
 
-#define HEATER_SCUPORT		6
-#define HEATER_SCUPIN		5
-#define HEATER_GPIOPORT		3
-#define HEATER_GPIOPIN		4
+#define HEATER_GPIOPORT 2
+#define TEMPSENSOR_GPIOPORT 0
 
 
 /*==================[internal data declaration]==============================*/
@@ -64,27 +62,6 @@ DEBUG_PRINT_ENABLE;
 
 /*==================[external functions definition]==========================*/
 
-/* FUNCION que se ejecuta cada vez que ocurre un Tick. */
-void heaterControl( heater * heater){
-
-	int temp;
-	float fTemp;
-	char str[20];
-
-	temp = owReadTemperature();
-	fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
-	sprintf(str, "temp:%f\r\n", fTemp);
-	debugPrintString(str);
-
-	if (fTemp > 26.5){
-		heaterOFF(heater);
-	} else{
-		heaterON(heater);
-	}
-
-	return;
-}
-
 
 /* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
 int main(void){
@@ -96,18 +73,29 @@ int main(void){
 	Board_Init();
 	SysTick_Config(SystemCoreClock / 1000);
 	debugPrintConfigUart( UART_USB, 115200 );
-	owInit();
-	heater heater = { HEATER_SCUPORT, HEATER_SCUPIN, HEATER_GPIOPORT, HEATER_GPIOPIN };
-	configHeater(&heater);
+	temperature_sensor tempSensor;
+	owInit(&tempSensor, TEMPSENSOR_GPIOPORT);
+	heater heater;
+	configHeater(&heater, HEATER_GPIOPORT);
 
-   /* Conteo de ticks cada 10 milisegundos, así vamos a estar activando o no medio ciclo de la señal. */
-   tickConfig( 10 );
 
-   /* Definimos como tickhook al control de la temperatura, se va a ejecutar cada 10 milis. */
-   tickCallbackSet( heaterControl, &heater);
+    int temp;
+	float fTemp;
+	char str[20];
 
    /* ------------- REPETIR POR SIEMPRE ------------- */
    while(1) {
+
+		temp = owReadTemperature(&tempSensor);
+		fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
+		sprintf(str, "temp:%f\r\n", fTemp);
+		debugPrintString(str);
+
+		if (fTemp > 26.5){
+			heaterOFF(&heater);
+		} else{
+			heaterON(&heater);
+		}
    }
 
    /* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado

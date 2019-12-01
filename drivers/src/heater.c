@@ -38,6 +38,7 @@
 
 #include "heater.h"
 #include "sapi.h"
+#include "portsMapping.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -53,15 +54,19 @@
 
 /*==================[external functions definition]==========================*/
 
-void configHeater(heater * heater){
+void configHeater(heater * heater, uint8_t eduCIAAgpio){
 
-	/*TIENE QUE IR A LOS DOS RELES DE AFUERA*/
+	heater->scu_port = gpioPortsMapping[eduCIAAgpio][0];
+	heater->scu_pin = gpioPortsMapping[eduCIAAgpio][1];
+	heater->gpio_port = gpioPortsMapping[eduCIAAgpio][2];
+	heater->gpio_pin = gpioPortsMapping[eduCIAAgpio][3];
+	heater->scu_function = gpioPortsMapping[eduCIAAgpio][4];
 
 	Chip_SCU_PinMux(
 					heater->scu_port,
 					heater->scu_pin,
 		            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
-					SCU_MODE_FUNC0
+					heater->scu_function
 		         );
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, heater->gpio_port, heater->gpio_pin);
 
