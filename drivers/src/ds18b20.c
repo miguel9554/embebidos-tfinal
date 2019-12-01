@@ -37,7 +37,7 @@
 /*==================[inclusions]=============================================*/
 
 #include "ds18b20.h"
-
+#include "portsMapping.h"
 #include "sapi.h"
 
 /*==================[macros and definitions]=================================*/
@@ -183,7 +183,7 @@ void owIN(temperature_sensor * tmpSensor){
 				tmpSensor->scu_port,
 				tmpSensor->scu_pin,
 	            SCU_MODE_PULLUP | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS,
-				SCU_MODE_FUNC0
+				tmpSensor->scu_function
 	         );
 	Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, tmpSensor->gpio_port, tmpSensor->gpio_pin);
 }
@@ -193,17 +193,23 @@ void owOUT(temperature_sensor * tmpSensor){
 				tmpSensor->scu_port,
 				tmpSensor->scu_pin,
 	            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
-				SCU_MODE_FUNC0
+				tmpSensor->scu_function
 	         );
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, tmpSensor->gpio_port, tmpSensor->gpio_pin);
 }
 
 /*==================[external functions definition]==========================*/
 
-void owInit(temperature_sensor * tmpSensor)
+void owInit(temperature_sensor * tmpSensor, uint8_t eduCIAAgpio)
 {
 	/* Init cycle counter */
     *DWT_CTRL |= 1;
+
+    tmpSensor->scu_port = gpioPortsMapping[eduCIAAgpio][0];
+    tmpSensor->scu_pin = gpioPortsMapping[eduCIAAgpio][1];
+    tmpSensor->gpio_port = gpioPortsMapping[eduCIAAgpio][2];
+    tmpSensor->gpio_pin = gpioPortsMapping[eduCIAAgpio][3];
+    tmpSensor->scu_function = gpioPortsMapping[eduCIAAgpio][4];
 
     owIN(tmpSensor);
 }

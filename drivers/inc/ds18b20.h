@@ -60,11 +60,12 @@ typedef struct {
 	uint8_t scu_pin;
 	uint8_t gpio_port;
 	uint8_t gpio_pin;
+	uint8_t scu_function;
 } temperature_sensor;
 
 /*==================[external functions declaration]=========================*/
 
-void owInit(temperature_sensor *);
+void owInit(temperature_sensor *, uint8_t);
 
 int owReadROM(temperature_sensor *, void * buffer8);
 

@@ -47,10 +47,7 @@ DEBUG_PRINT_ENABLE;
 
 /* TEMP SENSOR => GPIO0 */
 
-#define TEMPERATURESENSOR_SCUPORT		6
-#define TEMPERATURESENSOR_SCUPIN		1
-#define TEMPERATURESENSOR_GPIOPORT		3
-#define TEMPERATURESENSOR_GPIOPIN		0
+#define TEMPERATURESENSOR_GPIOPORT 0
 
 
 /*==================[internal data declaration]==============================*/
@@ -61,7 +58,7 @@ DEBUG_PRINT_ENABLE;
 
 /*==================[internal functions declaration]=========================*/
 
-static void initHardware(temperature_sensor *);
+static void initHardware(temperature_sensor *, uint8_t);
 
 /*==================[internal data definition]===============================*/
 
@@ -69,13 +66,13 @@ static void initHardware(temperature_sensor *);
 
 /*==================[internal functions definition]==========================*/
 
-static void initHardware(temperature_sensor * tmpSensor)
+static void initHardware(temperature_sensor * tmpSensor, uint8_t eduCIAAgpio)
 {
 	SystemCoreClockUpdate();
 	Board_Init();
 	tickConfig( 1 );
 	debugPrintConfigUart( UART_USB, 115200 );
-	owInit(tmpSensor);
+	owInit(tmpSensor, eduCIAAgpio);
 }
 
 /*==================[external functions definition]==========================*/
@@ -84,9 +81,9 @@ int main(void)
 {
 	int temp = 1;
 	char str[20];
-	temperature_sensor tmpSensor = { TEMPERATURESENSOR_SCUPORT, TEMPERATURESENSOR_SCUPIN, TEMPERATURESENSOR_GPIOPORT, TEMPERATURESENSOR_GPIOPIN };
+	temperature_sensor tmpSensor;
 
-	initHardware(&tmpSensor);
+	initHardware(&tmpSensor, TEMPERATURESENSOR_GPIOPORT);
 
 	while (1) {
 		/* read DS18B20 temperature sensor */
