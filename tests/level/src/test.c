@@ -37,7 +37,7 @@
 
 /*==================[inclusions]=============================================*/
 
-#include "../../../../tfinal/drivers/inc/level.h"
+#include "level.h"
 #include "sapi.h"         // <= sAPI header
 
 /*==================[macros and definitions]=================================*/
