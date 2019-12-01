@@ -60,16 +60,16 @@ typedef struct {
 	uint8_t scu_pin;
 	uint8_t gpio_port;
 	uint8_t gpio_pin;
-} Heater;
+} heater;
 
 
 /*==================[external functions declaration]=========================*/
 
-void configHeater(Heater *);
+void configHeater(heater *);
 
-void heaterOFF(Heater *);
+void heaterOFF(heater *);
 
-void heaterON(Heater *);
+void heaterON(heater *);
 
 /*==================[cplusplus]==============================================*/
 

@@ -65,7 +65,7 @@ DEBUG_PRINT_ENABLE;
 /*==================[external functions definition]==========================*/
 
 /* FUNCION que se ejecuta cada vez que ocurre un Tick. */
-void heaterControl( Heater * heater){
+void heaterControl( heater * heater){
 
 	int temp;
 	float fTemp;
@@ -97,7 +97,7 @@ int main(void){
 	SysTick_Config(SystemCoreClock / 1000);
 	debugPrintConfigUart( UART_USB, 115200 );
 	owInit();
-	Heater heater = { HEATER_SCUPORT, HEATER_SCUPIN, HEATER_GPIOPORT, HEATER_GPIOPIN };
+	heater heater = { HEATER_SCUPORT, HEATER_SCUPIN, HEATER_GPIOPORT, HEATER_GPIOPIN };
 	configHeater(&heater);
 
    /* Conteo de ticks cada 10 milisegundos, así vamos a estar activando o no medio ciclo de la señal. */

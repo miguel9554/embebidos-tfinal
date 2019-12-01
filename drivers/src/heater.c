@@ -53,7 +53,7 @@
 
 /*==================[external functions definition]==========================*/
 
-void configHeater(Heater * heater){
+void configHeater(heater * heater){
 
 	/*TIENE QUE IR A LOS DOS RELES DE AFUERA*/
 
@@ -68,11 +68,11 @@ void configHeater(Heater * heater){
 	heaterOFF(heater);
 }
 
-void heaterOFF(Heater * heater){
+void heaterOFF(heater * heater){
 	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, heater->gpio_port, heater->gpio_pin);
 }
 
-void heaterON(Heater * heater){
+void heaterON(heater * heater){
 	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, heater->gpio_port, heater->gpio_pin);
 }
 
