@@ -1,8 +1,4 @@
-/* Copyright 2016, Eric Pernia.
- * All rights reserved.
- *
- * This file is part sAPI library for microcontrollers.
- *
+/* Copyright 2015, Pablo Ridolfi
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -31,22 +27,25 @@
  *
  */
 
-/*
- * Date: 2016-04-26
- */
+/** @brief Brief for this file.
+ **
+ **/
+
+/** \addtogroup groupName Group Name
+ ** @{ */
 
 /*==================[inclusions]=============================================*/
 
-//#include "tickHook.h"   // <= own header (optional)
-#include "main.h"
-#include "onewire.h"
-#include "sapi.h"         // <= sAPI header
-DEBUG_PRINT_ENABLE;
+#include "heater.h"
+#include "sapi.h"
 
 /*==================[macros and definitions]=================================*/
 
-#define heaterON()		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER)
-#define heaterOFF()		Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER)
+/* GPIO2 */
+#define PINNAMEPORT_HEATER 6
+#define PINNAMEPIN_HEATER  5
+#define GPIOPORT_HEATER    3
+#define GPIOPIN_HEATER     4
 
 /*==================[internal data declaration]==============================*/
 
@@ -59,28 +58,6 @@ DEBUG_PRINT_ENABLE;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-
-/* FUNCION que se ejecuta cada vez que ocurre un Tick. */
-void heaterControl( void * notUsed){
-
-	int temp;
-	float fTemp;
-	char str[20];
-
-	temp = owReadTemperature();
-	fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
-	sprintf(str, "temp:%f\r\n", fTemp);
-	debugPrintString(str);
-	Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, GPIOPORT, GPIOPIN);
-
-	if (fTemp > 26.5){
-		heaterOFF();
-	} else{
-		heaterON();
-	}
-
-	return;
-}
 
 void configHeater(){
 
@@ -95,37 +72,15 @@ void configHeater(){
 	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER);
 
 	heaterOFF();
-
-	return;
 }
 
-
-/* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
-int main(void){
-
-   /* ------------- INICIALIZACIONES ------------- */
-
-   /* Inicializar la placa */
-	SystemCoreClockUpdate();
-	Board_Init();
-	SysTick_Config(SystemCoreClock / 1000);
-	debugPrintConfigUart( UART_USB, 115200 );
-	owInit();
-	configHeater();
-
-   /* Conteo de ticks cada 10 milisegundos, así vamos a estar activando o no medio ciclo de la señal. */
-   tickConfig( 10 );
-
-   /* Definimos como tickhook al control de la temperatura, se va a ejecutar cada 10 milis. */
-   tickCallbackSet( heaterControl, (void *) NULL);
-
-   /* ------------- REPETIR POR SIEMPRE ------------- */
-   while(1) {
-   }
-
-   /* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
-      por ningun S.O. */
-   return 0 ;
+void heaterOFF(){
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER);
 }
 
+void heaterON(){
+	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER);
+}
+
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/

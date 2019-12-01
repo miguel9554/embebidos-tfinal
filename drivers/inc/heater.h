@@ -1,8 +1,4 @@
-/* Copyright 2016, Pablo Ridolfi
- * All rights reserved.
- *
- * This file is part of Workspace.
- *
+/* Copyright 2015, Pablo Ridolfi
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -31,11 +27,17 @@
  *
  */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef APPLICATION_INC_HEATER_H_
+#define APPLICATION_INC_HEATER_H_
+/** @brief Brief for this header file.
+ **
+ ** Full description for this header file.
+ **
+ **/
 
-/** \addtogroup blink Bare-metal blink example
+/** \addtogroup groupName Group Name
  ** @{ */
+
 
 /*==================[inclusions]=============================================*/
 
@@ -47,29 +49,17 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-#define DEBUG_ENABLE
-
-/** delay in milliseconds */
-#define DELAY_MS 500
-
-/** led number to toggle */
-#define LED 0
-
-#define PINNAMEPORT_HEATER 6
-#define PINNAMEPIN_HEATER  5
-#define GPIOPORT_HEATER    3
-#define GPIOPIN_HEATER     4
-
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
 
-/** @brief main function
- * @return main function should never return
- */
-int main(void);
+void configHeater();
+
+void heaterOFF();
+
+void heaterON();
 
 /*==================[cplusplus]==============================================*/
 
@@ -79,4 +69,6 @@ int main(void);
 
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _PICO_H_ */
+
+
+#endif /* APPLICATION_INC_ONEWIRE_H_ */
