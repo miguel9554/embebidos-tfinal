@@ -59,28 +59,28 @@
 
 /*==================[external functions definition]==========================*/
 
-void configHeater(){
+void configHeater(Heater * heater){
 
 	/*TIENE QUE IR A LOS DOS RELES DE AFUERA*/
 
 	Chip_SCU_PinMux(
-					PINNAMEPORT_HEATER,
-					PINNAMEPIN_HEATER,
+					heater->pin_name_port,
+					heater->pin_name_pin,
 		            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
 					SCU_MODE_FUNC0
 		         );
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, heater->gpio_port, heater->gpio_pin);
 
-	heaterOFF();
+	heaterOFF(heater);
 }
 
-void heaterOFF(){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER);
+void heaterOFF(Heater * heater){
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, heater->gpio_port, heater->gpio_pin);
 }
 
-void heaterON(){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, GPIOPORT_HEATER, GPIOPIN_HEATER);
+void heaterON(Heater * heater){
+	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, heater->gpio_port, heater->gpio_pin);
 }
 
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/
+	/*==================[end of file]============================================*/

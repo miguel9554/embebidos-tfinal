@@ -41,6 +41,8 @@
 
 /*==================[inclusions]=============================================*/
 
+#include "sapi.h"
+
 /*==================[cplusplus]==============================================*/
 
 #ifdef __cplusplus
@@ -53,13 +55,21 @@ extern "C" {
 
 /*==================[external data declaration]==============================*/
 
+typedef struct {
+	uint8_t pin_name_port;
+	uint8_t pin_name_pin;
+	uint8_t gpio_port;
+	uint8_t gpio_pin;
+} Heater;
+
+
 /*==================[external functions declaration]=========================*/
 
-void configHeater();
+void configHeater(Heater *);
 
-void heaterOFF();
+void heaterOFF(Heater *);
 
-void heaterON();
+void heaterON(Heater *);
 
 /*==================[cplusplus]==============================================*/
 
