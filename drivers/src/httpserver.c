@@ -39,7 +39,6 @@
 #include "httpserver.h"
 #include "sapi.h"
 
-
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/

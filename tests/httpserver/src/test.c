@@ -34,7 +34,7 @@ int main(void){
 	tickConfig( 1 );
 
 	// Creamos la estructura asociada al servidor http
-	http_server server = {WIFI_NAME, WIFI_PASS, };
+	http_server server = {WIFI_NAME, WIFI_PASS, WIFI_MAX_DELAY};
 
 	// Configura la UART USB a 115200 baudios
 	uartConfig (UART_USB, 115200);
@@ -43,7 +43,9 @@ int main(void){
 	stdioPrintf(UART_USB, "\n\rBienvenido al servidor HTTP Esp8266 con EDU CIAA");
 	stdioPrintf(UART_USB, "\n\rLa configuracion puede tardar hasta 1 minuto.");
 
-	if ((ip_address = configHTTPserver(&server)) != NULL){
+	ip_address = configHTTPserver(&server);
+
+	if (ip_address != NULL){
 		stdioPrintf(UART_USB, "\n\rServidor HTTP configurado. IP: %s", ip_address);
 		// Enciende LEDG indicando que el modulo esta configurado.
 		gpioWrite(LEDG, TRUE);
