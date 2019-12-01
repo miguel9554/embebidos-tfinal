@@ -30,10 +30,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-ds18b20_PATH := projects/tfinal/ds18b20
+drivers_PATH := projects/tfinal/drivers
 
-ds18b20_SRC_FILES += $(wildcard $(ds18b20_PATH)/src/*.c)
+drivers_SRC_FILES += $(wildcard $(drivers_PATH)/src/*.c)
 
-ds18b20_SRC_FOLDERS += projects/tfinal/ds18b20/src
+drivers_SRC_FOLDERS += projects/tfinal/drivers/src
 
-ds18b20_INC_FOLDERS += projects/tfinal/ds18b20/inc
+drivers_INC_FOLDERS += projects/tfinal/drivers/inc

@@ -37,7 +37,7 @@ PROJECT_MODULES := modules/$(TARGET)/sapi \
                    modules/$(TARGET)/base \
                    modules/$(TARGET)/board \
                    modules/$(TARGET)/chip \
-                   projects/tfinal/ds18b20
+                   projects/tfinal/drivers
 
 # source files folder
 PROJECT_SRC_FOLDERS := $(PROJECT)/src
