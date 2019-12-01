@@ -56,8 +56,8 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 typedef struct {
-	uint8_t pin_name_port;
-	uint8_t pin_name_pin;
+	uint8_t scu_port;
+	uint8_t scu_pin;
 	uint8_t gpio_port;
 	uint8_t gpio_pin;
 } Heater;

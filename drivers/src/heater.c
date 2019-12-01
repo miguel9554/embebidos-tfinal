@@ -41,12 +41,6 @@
 
 /*==================[macros and definitions]=================================*/
 
-/* GPIO2 */
-#define PINNAMEPORT_HEATER 6
-#define PINNAMEPIN_HEATER  5
-#define GPIOPORT_HEATER    3
-#define GPIOPIN_HEATER     4
-
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -64,8 +58,8 @@ void configHeater(Heater * heater){
 	/*TIENE QUE IR A LOS DOS RELES DE AFUERA*/
 
 	Chip_SCU_PinMux(
-					heater->pin_name_port,
-					heater->pin_name_pin,
+					heater->scu_port,
+					heater->scu_pin,
 		            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
 					SCU_MODE_FUNC0
 		         );

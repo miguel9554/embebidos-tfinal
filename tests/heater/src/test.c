@@ -97,7 +97,7 @@ int main(void){
 	SysTick_Config(SystemCoreClock / 1000);
 	debugPrintConfigUart( UART_USB, 115200 );
 	owInit();
-	Heater heater = { HEATER_PINNAMEPORT, HEATER_PINNAMEPIN, HEATER_GPIOPORT, HEATER_GPIOPIN};
+	Heater heater = { HEATER_PINNAMEPORT, HEATER_PINNAMEPIN, HEATER_GPIOPORT, HEATER_GPIOPIN };
 	configHeater(&heater);
 
    /* Conteo de ticks cada 10 milisegundos, así vamos a estar activando o no medio ciclo de la señal. */
