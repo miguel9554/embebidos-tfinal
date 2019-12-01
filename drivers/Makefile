@@ -32,8 +32,11 @@
 
 drivers_PATH := projects/tfinal/drivers
 
-drivers_SRC_FILES += $(wildcard $(drivers_PATH)/src/*.c)
+drivers_SRC_FILES += $(wildcard $(drivers_PATH)/src/*.c) \
+					 $(wildcard $(sapi_PATH)/src/*.c)
 
-drivers_SRC_FOLDERS += projects/tfinal/drivers/src
+drivers_SRC_FOLDERS += projects/tfinal/drivers/src \
+					   modules/lpc4337_m4/sapi/src
 
-drivers_INC_FOLDERS += projects/tfinal/drivers/inc
+drivers_INC_FOLDERS += projects/tfinal/drivers/inc \
+					   modules/lpc4337_m4/sapi/inc
