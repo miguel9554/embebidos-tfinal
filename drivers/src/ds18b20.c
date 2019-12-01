@@ -42,15 +42,9 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define owREAD()	Chip_GPIO_GetPinState(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
-#define owLOW()		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
-#define owHIGH()	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
-
-/* GPIO0 */
-#define PINNAMEPORT 6
-#define PINNAMEPIN  1
-#define GPIOPORT    3
-#define GPIOPIN     0
+#define owREAD(tmpSensor)	Chip_GPIO_GetPinState(LPC_GPIO_PORT, tmpSensor->gpio_port, tmpSensor->gpio_pin)
+#define owLOW(tmpSensor)	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, tmpSensor->gpio_port, tmpSensor->gpio_pin)
+#define owHIGH(tmpSensor)	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, tmpSensor->gpio_port, tmpSensor->gpio_pin)
 
 /*==================[internal data declaration]==============================*/
 
@@ -59,10 +53,10 @@ static volatile uint32_t * DWT_CTRL = (uint32_t *)0xE0001000;
 
 /*==================[internal functions declaration]=========================*/
 static uint8_t owCrc(uint8_t *, uint8_t);
-static int owPresence(void);
-static void owCmd(uint8_t, void *, uint8_t);
-void owIN();
-void owOUT();
+static int owPresence(temperature_sensor *);
+static void owCmd(temperature_sensor *, uint8_t, void *, uint8_t);
+void owIN(temperature_sensor *);
+void owOUT(temperature_sensor *);
 
 /*==================[internal data definition]===============================*/
 
@@ -114,47 +108,47 @@ static uint8_t owCrc(uint8_t code[], uint8_t n)
 	return crc;
 }
 
-static int owPresence(void)
+static int owPresence(temperature_sensor * tmpSensor)
 {
     delayUs(1000);
 
-	owOUT();
-	owLOW();
+	owOUT(tmpSensor);
+	owLOW(tmpSensor);
 	delayUs(480);
-	owIN();
+	owIN(tmpSensor);
 	delayUs(40);
 
-	if(owREAD()==true)
+	if(owREAD(tmpSensor)==true)
 	{
 		return -1;
 	}
 	else
 	{
-		while(owREAD()==false);
+		while(owREAD(tmpSensor)==false);
 		return 0;
 	}
 }
 
-static void owCmd(uint8_t cmd, void * buffer, uint8_t n)
+static void owCmd(temperature_sensor * tmpSensor, uint8_t cmd, void * buffer, uint8_t n)
 {
 	uint8_t i = 1, j;
 	uint8_t * p = (uint8_t *)buffer;
 
-	owOUT();
+	owOUT(tmpSensor);
 	do
 	{
 		if(cmd & i)
 		{
-			owLOW();
+			owLOW(tmpSensor);
 			delayUs(3);
-			owHIGH();
+			owHIGH(tmpSensor);
 			delayUs(60);
 		}
 		else
 		{
-			owLOW();
+			owLOW(tmpSensor);
 			delayUs(60);
-			owHIGH();
+			owHIGH(tmpSensor);
 			delayUs(10);
 		}
 		if(i==0x80)
@@ -172,61 +166,61 @@ static void owCmd(uint8_t cmd, void * buffer, uint8_t n)
 		p[i] = 0;
 		for(j=0; j<8; j++)
 		{
-			owOUT();
-			owLOW();
+			owOUT(tmpSensor);
+			owLOW(tmpSensor);
 			delayUs(3);
-			owIN();
+			owIN(tmpSensor);
 			delayUs(12);
 			p[i] >>= 1;
-			if(owREAD()) p[i] |= 0x80;
+			if(owREAD(tmpSensor)) p[i] |= 0x80;
 			delayUs(55);
 		}
 	}
 }
 
-void owIN(){
+void owIN(temperature_sensor * tmpSensor){
 	Chip_SCU_PinMux(
-				PINNAMEPORT,
-				PINNAMEPIN,
+				tmpSensor->scu_port,
+				tmpSensor->scu_pin,
 	            SCU_MODE_PULLUP | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS,
 				SCU_MODE_FUNC0
 	         );
-	Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, GPIOPORT, GPIOPIN);
+	Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, tmpSensor->gpio_port, tmpSensor->gpio_pin);
 }
 
-void owOUT(){
+void owOUT(temperature_sensor * tmpSensor){
 	Chip_SCU_PinMux(
-				PINNAMEPORT,
-				PINNAMEPIN,
+				tmpSensor->scu_port,
+				tmpSensor->scu_pin,
 	            SCU_MODE_INACT | SCU_MODE_ZIF_DIS,
 				SCU_MODE_FUNC0
 	         );
-	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, GPIOPORT, GPIOPIN);
+	Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, tmpSensor->gpio_port, tmpSensor->gpio_pin);
 }
 
 /*==================[external functions definition]==========================*/
 
-void owInit(void)
+void owInit(temperature_sensor * tmpSensor)
 {
 	/* Init cycle counter */
     *DWT_CTRL |= 1;
 
-    owIN();
+    owIN(tmpSensor);
 }
 
-int owReadROM(void * buffer8)
+int owReadROM(temperature_sensor * tmpSensor, void * buffer8)
 {
 	int rv = -1;
 	uint8_t crc = 0;
 	uint8_t * p = (uint8_t *)buffer8;
 
-	if(owPresence()==0)
+	if(owPresence(tmpSensor) == 0)
 	{
 		delayUs(400);
 
 		__set_PRIMASK(1);
 
-		owCmd(0x33, p, 8); /* READ ROM CMD */
+		owCmd(tmpSensor, 0x33, p, 8); /* READ ROM CMD */
 
 		__set_PRIMASK(0);
 
@@ -240,21 +234,21 @@ int owReadROM(void * buffer8)
 	return rv;
 }
 
-int owReadScratch(void * buffer9)
+int owReadScratch(temperature_sensor * tmpSensor, void * buffer9)
 {
 	int rv = -1;
 	uint8_t crc = 0;
 	uint8_t * p = (uint8_t *)buffer9;
 
-	if(owPresence()==0)
+	if(owPresence(tmpSensor) == 0)
 	{
 		delayUs(400);
 
 		__set_PRIMASK(1);
 
-		owCmd(0x33, p, 8); /* READ ROM CMD */
+		owCmd(tmpSensor, 0x33, p, 8); /* READ ROM CMD */
 
-		owCmd(0xBE, p, 9);
+		owCmd(tmpSensor, 0xBE, p, 9);
 
 		__set_PRIMASK(0);
 
@@ -268,36 +262,36 @@ int owReadScratch(void * buffer9)
 	return rv;
 }
 
-int owReadTemperature(void)
+int owReadTemperature(temperature_sensor * tmpSensor)
 {
 	int rv = -1;
 	uint8_t crc = 0;
 	uint8_t p[9];
 
-	if(owPresence()==0)
+	if(owPresence(tmpSensor) == 0)
 	{
 		delayUs(400);
 
 		__set_PRIMASK(1);
 
-		owCmd(0x33, p, 8); /* READ ROM CMD */
+		owCmd(tmpSensor, 0x33, p, 8); /* READ ROM CMD */
 
-		owCmd(0x44, p, 0); /* START CONVERSION */
+		owCmd(tmpSensor, 0x44, p, 0); /* START CONVERSION */
 
 		__set_PRIMASK(0);
 
-		owIN();
-		while(owREAD() == false); /* wait for end of conv */
+		owIN(tmpSensor);
+		while(owREAD(tmpSensor) == false); /* wait for end of conv */
 
-		owPresence();
+		owPresence(tmpSensor);
 
 		delayUs(400);
 
 		__set_PRIMASK(1);
 
-		owCmd(0x33, p, 8); /* READ ROM CMD */
+		owCmd(tmpSensor, 0x33, p, 8); /* READ ROM CMD */
 
-		owCmd(0xBE, p, 9); /* READ SCRATCH */
+		owCmd(tmpSensor, 0xBE, p, 9); /* READ SCRATCH */
 
 		__set_PRIMASK(0);
 

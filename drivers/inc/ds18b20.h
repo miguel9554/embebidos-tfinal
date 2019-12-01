@@ -41,6 +41,8 @@
 
 /*==================[inclusions]=============================================*/
 
+#include "sapi.h"
+
 /*==================[cplusplus]==============================================*/
 
 #ifdef __cplusplus
@@ -53,15 +55,22 @@ extern "C" {
 
 /*==================[external data declaration]==============================*/
 
+typedef struct {
+	uint8_t scu_port;
+	uint8_t scu_pin;
+	uint8_t gpio_port;
+	uint8_t gpio_pin;
+} temperature_sensor;
+
 /*==================[external functions declaration]=========================*/
 
-void owInit(void);
+void owInit(temperature_sensor *);
 
-int owReadROM(void * buffer8);
+int owReadROM(temperature_sensor *, void * buffer8);
 
-int owReadScratch(void * buffer9);
+int owReadScratch(temperature_sensor *, void * buffer9);
 
-int owReadTemperature(void);
+int owReadTemperature(temperature_sensor *);
 
 /*==================[cplusplus]==============================================*/
 
