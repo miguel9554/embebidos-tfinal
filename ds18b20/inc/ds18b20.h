@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef APPLICATION_INC_ONEWIRE_H_
-#define APPLICATION_INC_ONEWIRE_H_
+#ifndef APPLICATION_INC_DS18B20_H_
+#define APPLICATION_INC_DS18B20_H_
 /** @brief Brief for this header file.
  **
  ** Full description for this header file.
@@ -48,12 +48,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-
-/* GPIO0 */
-#define PINNAMEPORT 6
-#define PINNAMEPIN  1
-#define GPIOPORT    3
-#define GPIOPIN     0
 
 /*==================[typedef]================================================*/
 

@@ -30,48 +30,64 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-#ifndef _MAIN_H_
-#define _MAIN_H_
+ 
+/** @brief This is a simple blink example.
+ */
 
 /** \addtogroup blink Bare-metal blink example
  ** @{ */
 
 /*==================[inclusions]=============================================*/
 
-/*==================[cplusplus]==============================================*/
+#include "ds18b20.h"
+#include "sapi.h"
+DEBUG_PRINT_ENABLE;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
-
+/*==================[internal data declaration]==============================*/
 #define DEBUG_ENABLE
 
 /** delay in milliseconds */
 #define DELAY_MS 500
 
-/** led number to toggle */
-#define LED 0
+/*==================[internal functions declaration]=========================*/
 
-/*==================[typedef]================================================*/
+static void initHardware(void);
 
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[external data definition]===============================*/
 
-/** @brief main function
- * @return main function should never return
- */
-int main(void);
+/*==================[internal functions definition]==========================*/
 
-/*==================[cplusplus]==============================================*/
-
-#ifdef __cplusplus
+static void initHardware(void)
+{
+	SystemCoreClockUpdate();
+	Board_Init();
+	tickConfig( 1 );
+	debugPrintConfigUart( UART_USB, 115200 );
+	owInit();
 }
-#endif
+
+/*==================[external functions definition]==========================*/
+
+int main(void)
+{
+	int temp = 1;
+	char str[20];
+
+	initHardware();
+
+	while (1) {
+		/* read DS18B20 temperature sensor */
+		temp = owReadTemperature();
+		sprintf(str, "temp:%d.%04d\r\n", temp >> 4, (temp & 0xF) * 625);
+		debugPrintString(str);
+		delay(DELAY_MS);
+	}
+}
 
 /** @} doxygen end group definition */
+
 /*==================[end of file]============================================*/
-#endif /* #ifndef _PICO_H_ */

@@ -1,5 +1,4 @@
 # Copyright 2016, Pablo Ridolfi
-# Copyright 2016, Eric Pernia
 # All rights reserved.
 #
 # This file is part of Workspace.
@@ -30,10 +29,26 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-ds18b20_PATH := projects/tfinal/ds18b20
+# application name
+PROJECT_NAME := $(notdir $(PROJECT))
 
-ds18b20_SRC_FILES += $(wildcard $(ds18b20_PATH)/src/*.c)
+# Modules needed by the application
+PROJECT_MODULES := modules/$(TARGET)/sapi \
+                   modules/$(TARGET)/base \
+                   modules/$(TARGET)/board \
+                   modules/$(TARGET)/chip \
+                   projects/tfinal/ds18b20
 
-ds18b20_SRC_FOLDERS += projects/tfinal/ds18b20/src
+# source files folder
+PROJECT_SRC_FOLDERS := $(PROJECT)/src
 
-ds18b20_INC_FOLDERS += projects/tfinal/ds18b20/inc
+# header files folder
+PROJECT_INC_FOLDERS := $(PROJECT)/inc
+
+# source files
+PROJECT_C_FILES := $(wildcard $(PROJECT)/src/*.c)
+
+PROJECT_ASM_FILES := $(wildcard $(PROJECT)/src/*.S)
+
+EXTERN_LIBS += c rdimon
+

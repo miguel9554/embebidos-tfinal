@@ -46,6 +46,12 @@
 #define owLOW()		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
 #define owHIGH()	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, GPIOPORT, GPIOPIN)
 
+/* GPIO0 */
+#define PINNAMEPORT 6
+#define PINNAMEPIN  1
+#define GPIOPORT    3
+#define GPIOPIN     0
+
 /*==================[internal data declaration]==============================*/
 
 static volatile uint32_t * DWT_CTRL = (uint32_t *)0xE0001000;
