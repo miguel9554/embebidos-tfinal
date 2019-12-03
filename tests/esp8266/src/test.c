@@ -1,7 +1,8 @@
 /*==================[inclusions]=============================================*/
 
 #include "sapi.h"
-#include "httpserver.h"
+#include "esp8266.h"
+#include <string.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -11,6 +12,8 @@
 
 // El maximo tiempo que se espera una respuesta del modulo ESP8266
 #define WIFI_MAX_DELAY 600000
+
+#define BUFFER_LEN 6000
 
 /*==================[internal functions declaration]=========================*/
 
@@ -25,39 +28,41 @@
 /* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
 int main(void){
 
-	char * ip_address;
+	char * command;
+	char buffer[BUFFER_LEN];
+	unsigned long buffer_len = BUFFER_LEN;
 
 	// Inicializar la placa
 	boardConfig ();
+
+	// Configuramos el puerto serie USB
+	uartConfig (UART_USB, 115200);
 
 	// Configuramos los ticks para que se den cada 1 milisegundo
 	tickConfig( 1 );
 
 	// Creamos la estructura asociada al servidor http
-	http_server server = {WIFI_NAME, WIFI_PASS, WIFI_MAX_DELAY};
+	// http_server server = {WIFI_NAME, WIFI_PASS, WIFI_MAX_DELAY};
 
-	// Configura la UART USB a 115200 baudios
-	uartConfig (UART_USB, 115200);
+	initESP8266();
 
-	// Envia un mensaje de bienvenida.
-	stdioPrintf(UART_USB, "\n\rBienvenido al servidor HTTP Esp8266 con EDU CIAA");
-	stdioPrintf(UART_USB, "\n\rLa configuracion puede tardar hasta 1 minuto.");
+	command = "AT+CWMODE=1";
 
-	ip_address = configHTTPserver(&server);
-
-	if (ip_address != NULL){
-		stdioPrintf(UART_USB, "\n\rServidor HTTP configurado. IP: %s", ip_address);
-		// Enciende LEDG indicando que el modulo esta configurado.
-		gpioWrite(LEDG, TRUE);
-	} else {
-		stdioPrintf(UART_USB, "\n\rError al configurar servidor HTTP");
-		// Enciende LEDR indicando que el modulo esta en error.
-		gpioWrite(LEDR, TRUE);
-	}
+	sendATcommand(command);
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
-
+		if(readESP8266Data(buffer, buffer_len)){
+			if (strcmp(buffer, command) == 0){
+				stdioPrintf(UART_USB, "Recibimos el echo bien...\r\n");
+			} else if (strcmp(buffer, "") == 0){
+				stdioPrintf(UART_USB, "Recibimos el vacio bien...\r\n");
+			} else if (strcmp(buffer, "OK") == 0){
+				stdioPrintf(UART_USB, "Recibimos el OK bien...\r\n");
+			}  else {
+				stdioPrintf(UART_USB, "WTF! recibimos <%s>\r\n", buffer);
+			}
+		}
 	}
 
 	/* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
