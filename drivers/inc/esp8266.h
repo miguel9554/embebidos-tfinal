@@ -60,6 +60,7 @@ extern "C" {
 void initESP8266();
 bool sendATcommand(char *, char *);
 bool readESP8266Data(char * , unsigned long);
+bool getIPadress(char *);
 
 /*==================[cplusplus]==============================================*/
 

@@ -28,6 +28,7 @@
 int main(void){
 
 	char * command;
+	char ip_address[BUFFER_LEN];
 
 	// Inicializar la placa
 	boardConfig ();
@@ -36,7 +37,7 @@ int main(void){
 	uartConfig (UART_USB, 115200);
 
 	// Configuramos los ticks para que se den cada 1 milisegundo
-	tickConfig( 1 );
+	tickConfig( 50 );
 
 	// Creamos la estructura asociada al servidor http
 	// http_server server = {WIFI_NAME, WIFI_PASS, WIFI_MAX_DELAY};
@@ -45,7 +46,7 @@ int main(void){
 
 	command = "AT+RESTORE";
 
-	if(sendATcommand(command, "OK")){
+	if(sendATcommand(command, "ready")){
 		stdioPrintf(UART_USB, "Reseteo OK\r\n");
 	} else {
 		stdioPrintf(UART_USB, "ERROR: Fallamos reseteando\r\n");
@@ -89,6 +90,13 @@ int main(void){
 	} else {
 		stdioPrintf(UART_USB, "ERROR: Fallamos seteando servidor en puerto 80\r\n");
 	}
+
+	if (getIPadress(ip_address)){
+		stdioPrintf(UART_USB, "Servidor funcionando en puerto 80, ip: %s\r\n", ip_address);
+	} else {
+		stdioPrintf(UART_USB, "Fallamos obteniendo la IP...%s\r\n");
+	}
+
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {

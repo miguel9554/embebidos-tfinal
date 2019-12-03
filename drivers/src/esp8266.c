@@ -45,6 +45,8 @@
 #define BUFFER_LEN 6000
 #define ESP8266_UART UART_232
 #define ESP_BAUDRATE 115200
+// delay de 10 segundos por comando
+#define MAX_DELAY 10000
 
 /*==================[internal data declaration]==============================*/
 
@@ -97,23 +99,65 @@ bool sendATcommand(char * command, char * expected_response){
 	unsigned long buffer_len = BUFFER_LEN;
 	bool communication_finnished = false;
 	bool communication_succesful = false;
+	delay_t max_wait_time;
+
+	delayConfig(&max_wait_time, MAX_DELAY);
 
 	stdioPrintf(ESP8266_UART, "%s\r\n", command);
 
+	// mandamos el comando, y esperamos la respuesta esperada o que pasen 10 segundos
 	while (! (communication_finnished)){
 		if(readESP8266Data(buffer, buffer_len)){
-			if (strcmp(buffer, command) == 0){
-				// stdioPrintf(UART_USB, "Recibimos el echo bien...\r\n");
-			} else if (strcmp(buffer, "") == 0){
-				// stdioPrintf(UART_USB, "Recibimos el vacio bien...\r\n");
-			} else if (strcmp(buffer, expected_response) == 0){
+			if (strcmp(buffer, expected_response) == 0){
 				//stdioPrintf(UART_USB, "Recibimos el OK bien...\r\n");
 				communication_finnished = true;
 				communication_succesful = true;
-			}  else {
-				communication_finnished = true;
-				communication_succesful = false;
 			}
+		}
+		if (delayRead(&max_wait_time)){
+			communication_finnished = true;
+			communication_succesful = false;
+		}
+	}
+
+	return communication_succesful;
+}
+
+bool getIPadress(char * ip){
+	char command[] = "AT+CIFSR";
+	char expected_response[] = "OK";
+	char buffer[BUFFER_LEN];
+	unsigned long buffer_len = BUFFER_LEN;
+	bool communication_finnished = false;
+	bool communication_succesful = false;
+	unsigned long i = 0;
+	delay_t max_wait_time;
+
+	delayConfig(&max_wait_time, MAX_DELAY);
+
+	stdioPrintf(ESP8266_UART, "%s\r\n", command);
+	//stdioPrintf(UART_USB, "Buscando IP\r\n");
+
+	// mandamos el comando, y esperamos la respuesta esperada o que pasen 10 segundos
+	while (! (communication_finnished)){
+		if(readESP8266Data(buffer, buffer_len)){
+			if (strcmp(buffer, expected_response) == 0){
+				communication_finnished = true;
+				communication_succesful = true;
+			}
+			if (buffer[0] == '+' && buffer[1] == 'C' && buffer[2] == 'I' && buffer[3] == 'F' && buffer[4] == 'S' && buffer[5] == 'R'
+					 && buffer[6] == ':' && buffer[7] == 'S' && buffer[8] == 'T' && buffer[9] == 'A' && buffer[10] == 'I' && buffer[11] == 'P'){
+				//stdioPrintf(UART_USB, "Encontramos el mensaje de IP\r\n");
+				while( * (buffer + 14 + i) != '"'){
+					* (ip + i) = * (buffer + 14 + i);
+					i++;
+				}
+				* (ip + i) = '\0';
+			}
+		}
+		if (delayRead(&max_wait_time)){
+			communication_finnished = true;
+			communication_succesful = false;
 		}
 	}
 
