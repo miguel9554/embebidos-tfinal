@@ -2,7 +2,6 @@
 
 #include "sapi.h"
 #include "esp8266.h"
-#include <string.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -29,8 +28,6 @@
 int main(void){
 
 	char * command;
-	char buffer[BUFFER_LEN];
-	unsigned long buffer_len = BUFFER_LEN;
 
 	// Inicializar la placa
 	boardConfig ();
@@ -46,23 +43,55 @@ int main(void){
 
 	initESP8266();
 
+	command = "AT+RESTORE";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Reseteo OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos reseteando\r\n");
+	}
+
 	command = "AT+CWMODE=1";
 
-	sendATcommand(command);
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteado como station OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando como station\r\n");
+	}
+
+	command= "AT+CWJAP=\"RompeMuros\",\"Juan2019\"";
+
+	// esto manda
+	// echo
+	// wifi connected
+	// got ip
+	// vacio
+	// ok
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Conecatdo a la red OK!\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos conectando a la red\r\n");
+	}
+
+	command = "AT+CIPMUX=1";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteadas multiples conexiones OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando multiples conexiones\r\n");
+	}
+
+	command = "AT+CIPSERVER=1,80";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteado servidor en puerto 80 OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando servidor en puerto 80\r\n");
+	}
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
-		if(readESP8266Data(buffer, buffer_len)){
-			if (strcmp(buffer, command) == 0){
-				stdioPrintf(UART_USB, "Recibimos el echo bien...\r\n");
-			} else if (strcmp(buffer, "") == 0){
-				stdioPrintf(UART_USB, "Recibimos el vacio bien...\r\n");
-			} else if (strcmp(buffer, "OK") == 0){
-				stdioPrintf(UART_USB, "Recibimos el OK bien...\r\n");
-			}  else {
-				stdioPrintf(UART_USB, "WTF! recibimos <%s>\r\n", buffer);
-			}
-		}
 	}
 
 	/* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado

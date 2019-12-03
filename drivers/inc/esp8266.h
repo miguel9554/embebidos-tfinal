@@ -58,7 +58,7 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 void initESP8266();
-void sendATcommand(char * );
+bool sendATcommand(char *, char *);
 bool readESP8266Data(char * , unsigned long);
 
 /*==================[cplusplus]==============================================*/

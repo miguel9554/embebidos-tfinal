@@ -38,11 +38,13 @@
 
 #include "esp8266.h"
 #include "sapi.h"
+#include <string.h>
 
 /*==================[macros and definitions]=================================*/
 
-#define BUF_LEN 4096
+#define BUFFER_LEN 6000
 #define ESP8266_UART UART_232
+#define ESP_BAUDRATE 115200
 
 /*==================[internal data declaration]==============================*/
 
@@ -57,12 +59,7 @@
 /*==================[external functions definition]==========================*/
 
 void initESP8266(){
-	uartConfig (ESP8266_UART, 9600);
-}
-
-void sendATcommand(char * command){
-	//stdioPrintf(ESP8266_UART, "%s\r\n", command);
-	stdioPrintf(ESP8266_UART, "%s\r\n", command);
+	uartConfig (ESP8266_UART, ESP_BAUDRATE);
 }
 
 bool readESP8266Data(char * buffer, unsigned long buffer_len){
@@ -92,6 +89,35 @@ bool readESP8266Data(char * buffer, unsigned long buffer_len){
 
 	return true;
 
+}
+
+bool sendATcommand(char * command, char * expected_response){
+
+	char buffer[BUFFER_LEN];
+	unsigned long buffer_len = BUFFER_LEN;
+	bool communication_finnished = false;
+	bool communication_succesful = false;
+
+	stdioPrintf(ESP8266_UART, "%s\r\n", command);
+
+	while (! (communication_finnished)){
+		if(readESP8266Data(buffer, buffer_len)){
+			if (strcmp(buffer, command) == 0){
+				// stdioPrintf(UART_USB, "Recibimos el echo bien...\r\n");
+			} else if (strcmp(buffer, "") == 0){
+				// stdioPrintf(UART_USB, "Recibimos el vacio bien...\r\n");
+			} else if (strcmp(buffer, expected_response) == 0){
+				//stdioPrintf(UART_USB, "Recibimos el OK bien...\r\n");
+				communication_finnished = true;
+				communication_succesful = true;
+			}  else {
+				communication_finnished = true;
+				communication_succesful = false;
+			}
+		}
+	}
+
+	return communication_succesful;
 }
 
 
