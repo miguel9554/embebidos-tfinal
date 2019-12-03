@@ -55,6 +55,7 @@
 bool readESP8266Data(char * , unsigned long );
 bool sendATcommand(char * , char * );
 bool getIPadress(char * );
+bool sendTCPData(char * );
 
 /*==================[internal data definition]===============================*/
 
@@ -191,8 +192,10 @@ bool readIPdata(char * data){
 				communication_finnished = true;
 				communication_succesful = true;
 			}
+			stdioPrintf(UART_USB, "%s\r\n", buffer);
 			// +CIPRECVDATA:<actual_len>,<data>
 			if (buffer[0] == 'G' && buffer[1] == 'E' && buffer[2] == 'T'){
+				stdioPrintf(UART_USB, "Recibimos el GET\r\n");
 				while( * (buffer + i)){
 					* (data + i) = * (buffer + i);
 					i++;
@@ -208,6 +211,34 @@ bool readIPdata(char * data){
 	}
 
 	return communication_succesful && data_readed;
+}
+
+bool sendTCPData(char * data){
+
+	char command[BUFFER_LEN];
+	delay_t max_wait_time;
+
+	delayConfig(&max_wait_time, MAX_DELAY);
+
+	stdioPrintf(UART_USB, "Por usar sprintf\r\n");
+	stdioSprintf(command, "AT+CIPSEND=0,%d", strlen(data));
+	stdioPrintf(UART_USB, "sprintf usada\r\n");
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Request para mandar datos ok\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: no permitio mandar datos\r\n");
+		return false;
+	}
+
+	if(sendATcommand(data, "SEND OK")){
+		stdioPrintf(UART_USB, "Request para mandar datos ok\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: no permitio mandar datos\r\n");
+		return false;
+	}
+
+	return true;
 }
 
 
@@ -304,6 +335,7 @@ bool receiveData(char * data){
 
 	char buffer[BUFFER_LEN];
 	unsigned long buffer_len = BUFFER_LEN;
+	char response[] = "<!DOCTYPE HTML><html>Recibido</html>";
 
 	if(readESP8266Data(buffer, buffer_len)){
 		if(buffer[1] == ',' && buffer[2] == 'C' && buffer[3] == 'O' && buffer[4] == 'N' && buffer[5] == 'N' && buffer[6] == 'E' && buffer[7] == 'C'
@@ -313,16 +345,27 @@ bool receiveData(char * data){
 			stdioPrintf(UART_USB, "Recibimos datos\r\n");
 
 			if (readIPdata(data)){
-				//"<!DOCTYPE HTML><html>Recibido</html>"
+				if(sendTCPData(response)){
+					stdioPrintf(UART_USB, "Mandamos bien la respuesta\r\n");
+				} else{
+					stdioPrintf(UART_USB, "Fallamos enviando la respuesta\r\n");
+					if(sendATcommand("AT+CIPCLOSE=0", "OK")){}
+					if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
+				}
 				if(sendATcommand("AT+CIPCLOSE=0", "OK")){
 					stdioPrintf(UART_USB, "Datos leidos, cerramos la conexion\r\n");
+					if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 					return true;
 				} else {
 					stdioPrintf(UART_USB, "ERROR: Fallamos cerrando la conexion\r\n");
+					if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 					return false;
 				}
+				if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 			} else{
 				stdioPrintf(UART_USB, "ERROR: Fallamos leyendo los datos\r\n");
+				if(sendATcommand("AT+CIPCLOSE=0", "OK")){}
+				if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 				return false;
 			}
 		}
