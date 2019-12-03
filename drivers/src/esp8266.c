@@ -52,17 +52,21 @@
 
 /*==================[internal functions declaration]=========================*/
 
+bool readESP8266Data(char * , unsigned long );
+bool sendATcommand(char * , char * );
+bool getIPadress(char * );
+
 /*==================[internal data definition]===============================*/
+
+typedef struct{
+	bool active;
+	char id;
+} connection;
+
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-
-void initESP8266(){
-	uartConfig (ESP8266_UART, ESP_BAUDRATE);
-}
 
 bool readESP8266Data(char * buffer, unsigned long buffer_len){
 
@@ -124,6 +128,7 @@ bool sendATcommand(char * command, char * expected_response){
 }
 
 bool getIPadress(char * ip){
+
 	char command[] = "AT+CIFSR";
 	char expected_response[] = "OK";
 	char buffer[BUFFER_LEN];
@@ -162,6 +167,168 @@ bool getIPadress(char * ip){
 	}
 
 	return communication_succesful;
+}
+
+bool readIPdata(char * data){
+
+	char buffer[BUFFER_LEN];
+	unsigned long buffer_len = BUFFER_LEN;
+	bool communication_finnished = false;
+	bool communication_succesful = false;
+	bool data_readed = false;
+	unsigned long i = 0;
+	delay_t max_wait_time;
+
+	delayConfig(&max_wait_time, MAX_DELAY);
+
+	stdioPrintf(ESP8266_UART, "AT+CIPRECVDATA=0,200\r\n");
+	//stdioPrintf(UART_USB, "Buscando IP\r\n");
+
+	// mandamos el comando, y esperamos la respuesta esperada o que pasen 10 segundos
+	while (! (communication_finnished)){
+		if(readESP8266Data(buffer, buffer_len)){
+			if (strcmp(buffer, "OK") == 0){
+				communication_finnished = true;
+				communication_succesful = true;
+			}
+			// +CIPRECVDATA:<actual_len>,<data>
+			if (buffer[0] == 'G' && buffer[1] == 'E' && buffer[2] == 'T'){
+				while( * (buffer + i)){
+					* (data + i) = * (buffer + i);
+					i++;
+				}
+				* (data + i) = '\0';
+				data_readed = true;
+			}
+		}
+		if (delayRead(&max_wait_time)){
+			communication_finnished = true;
+			communication_succesful = false;
+		}
+	}
+
+	return communication_succesful && data_readed;
+}
+
+
+/*==================[external functions definition]==========================*/
+
+bool configWebServer(){
+
+	char * command;
+	char ip_address[BUFFER_LEN];
+
+	uartConfig (ESP8266_UART, ESP_BAUDRATE);
+
+	command = "AT+RESTORE";
+
+	if(sendATcommand(command, "ready")){
+		stdioPrintf(UART_USB, "Reseteo OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos reseteando\r\n");
+		return false;
+	}
+
+	command = "AT+CWMODE=1";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteado como station OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando como station\r\n");
+		return false;
+	}
+
+	command= "AT+CWJAP=\"RompeMuros\",\"Juan2019\"";
+
+	// esto manda
+	// echo
+	// wifi connected
+	// got ip
+	// vacio
+	// ok
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Conecatdo a la red OK!\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos conectando a la red\r\n");
+		return false;
+	}
+
+	command = "AT+CIPMUX=1";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteadas multiples conexiones OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando multiples conexiones\r\n");
+		return false;
+	}
+
+	command = "AT+CIPRECVMODE=1";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteadas modo recibo pasivo OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando modo recibo pasivo\r\n");
+		return false;
+	}
+
+	command = "AT+CIPSERVERMAXCONN=1";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteadas conexiones maximas igual a 1 OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando conexiones maximas igual a 1 \r\n");
+		return false;
+	}
+
+	command = "AT+CIPSERVER=1,80";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Seteado servidor en puerto 80 OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos seteando servidor en puerto 80\r\n");
+		return false;
+	}
+
+	if (getIPadress(ip_address)){
+		stdioPrintf(UART_USB, "Servidor funcionando en puerto 80, ip: %s\r\n", ip_address);
+	} else {
+		stdioPrintf(UART_USB, "Fallamos obteniendo la IP...%s\r\n");
+		return false;
+	}
+
+	return true;
+}
+
+bool receiveData(char * data){
+
+	char buffer[BUFFER_LEN];
+	unsigned long buffer_len = BUFFER_LEN;
+
+	if(readESP8266Data(buffer, buffer_len)){
+		if(buffer[1] == ',' && buffer[2] == 'C' && buffer[3] == 'O' && buffer[4] == 'N' && buffer[5] == 'N' && buffer[6] == 'E' && buffer[7] == 'C'
+				 && buffer[8] == 'T'){
+			stdioPrintf(UART_USB, "Nueva conexion: %c\r\n", buffer[0]);
+		} else if (buffer[0] == '+' && buffer[1] == 'I' && buffer[2] == 'P' && buffer[3] == 'D'){
+			stdioPrintf(UART_USB, "Recibimos datos\r\n");
+
+			if (readIPdata(data)){
+				//"<!DOCTYPE HTML><html>Recibido</html>"
+				if(sendATcommand("AT+CIPCLOSE=0", "OK")){
+					stdioPrintf(UART_USB, "Datos leidos, cerramos la conexion\r\n");
+					return true;
+				} else {
+					stdioPrintf(UART_USB, "ERROR: Fallamos cerrando la conexion\r\n");
+					return false;
+				}
+			} else{
+				stdioPrintf(UART_USB, "ERROR: Fallamos leyendo los datos\r\n");
+				return false;
+			}
+		}
+	}
+
+	return false;
 }
 
 

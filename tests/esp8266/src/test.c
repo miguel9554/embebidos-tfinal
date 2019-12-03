@@ -27,79 +27,29 @@
 /* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
 int main(void){
 
-	char * command;
-	char ip_address[BUFFER_LEN];
+	char data[BUFFER_LEN];
 
 	// Inicializar la placa
-	boardConfig ();
+	boardConfig();
 
 	// Configuramos el puerto serie USB
-	uartConfig (UART_USB, 115200);
+	uartConfig(UART_USB, 115200);
 
 	// Configuramos los ticks para que se den cada 1 milisegundo
 	tickConfig( 50 );
 
-	// Creamos la estructura asociada al servidor http
-	// http_server server = {WIFI_NAME, WIFI_PASS, WIFI_MAX_DELAY};
-
-	initESP8266();
-
-	command = "AT+RESTORE";
-
-	if(sendATcommand(command, "ready")){
-		stdioPrintf(UART_USB, "Reseteo OK\r\n");
-	} else {
-		stdioPrintf(UART_USB, "ERROR: Fallamos reseteando\r\n");
+	if (configWebServer()){
+		gpioWrite(LEDG, 1);
+	} else{
+		gpioWrite(LEDR, 1);
+		while(1){}
 	}
-
-	command = "AT+CWMODE=1";
-
-	if(sendATcommand(command, "OK")){
-		stdioPrintf(UART_USB, "Seteado como station OK\r\n");
-	} else {
-		stdioPrintf(UART_USB, "ERROR: Fallamos seteando como station\r\n");
-	}
-
-	command= "AT+CWJAP=\"RompeMuros\",\"Juan2019\"";
-
-	// esto manda
-	// echo
-	// wifi connected
-	// got ip
-	// vacio
-	// ok
-
-	if(sendATcommand(command, "OK")){
-		stdioPrintf(UART_USB, "Conecatdo a la red OK!\r\n");
-	} else {
-		stdioPrintf(UART_USB, "ERROR: Fallamos conectando a la red\r\n");
-	}
-
-	command = "AT+CIPMUX=1";
-
-	if(sendATcommand(command, "OK")){
-		stdioPrintf(UART_USB, "Seteadas multiples conexiones OK\r\n");
-	} else {
-		stdioPrintf(UART_USB, "ERROR: Fallamos seteando multiples conexiones\r\n");
-	}
-
-	command = "AT+CIPSERVER=1,80";
-
-	if(sendATcommand(command, "OK")){
-		stdioPrintf(UART_USB, "Seteado servidor en puerto 80 OK\r\n");
-	} else {
-		stdioPrintf(UART_USB, "ERROR: Fallamos seteando servidor en puerto 80\r\n");
-	}
-
-	if (getIPadress(ip_address)){
-		stdioPrintf(UART_USB, "Servidor funcionando en puerto 80, ip: %s\r\n", ip_address);
-	} else {
-		stdioPrintf(UART_USB, "Fallamos obteniendo la IP...%s\r\n");
-	}
-
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
+		if (receiveData(data)){
+			stdioPrintf(UART_USB, "Recibimos por GET: %s\r\n", data);
+		}
 	}
 
 	/* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
