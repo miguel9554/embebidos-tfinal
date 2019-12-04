@@ -66,7 +66,7 @@ int main(void){
    /* ------------- INICIALIZACIONES ------------- */
 
    /* Inicializar la placa */
-	Board_Init();
+	boardConfig();
     tickConfig( 50 );
 	valve valve;
 	configValve(&valve, VALVE_GPIOPORT);
@@ -74,8 +74,9 @@ int main(void){
    /* ------------- REPETIR POR SIEMPRE ------------- */
    while(1) {
 	   valveOpen(&valve);
-	   delay(1000);
+	   delay(3000);
 	   valveClose(&valve);
+	   delay(3000);
    }
 
    /* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
