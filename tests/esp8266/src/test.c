@@ -39,24 +39,25 @@ char GETstring_minutosReposoTercerPerfilTemperatura[] = "/minutos/reposo/perfil/
 /*==================[internal functions definition]==========================*/
 
 void assignVariablesData(char * data, float * tempraturaDeseadaOlla1){
-	char * result;
+	char result[50];
 	int tmp;
 	if(matchGET(GETstring_tempraturaDeseadaOlla1, data, 13, result)){
 		stdioPrintf(UART_USB, "Recibimos data para temp olla 1\r\n");
 		tmp = StrToInt(result);
 		if(tmp){
-			*tempraturaDeseadaOlla1 = tmp;
+			*tempraturaDeseadaOlla1 = (float) tmp;
 			stdioPrintf(UART_USB, "Dato OK\r\n");
 		} else {
 			stdioPrintf(UART_USB, "Dato mal...\r\n");
 		}
+	} else{
+		stdioPrintf(UART_USB, "No matchea con nada\r\n");
 	}
 }
 
 bool matchGET(char * pattern, char * data, uint8_t length, char * result){
 	int j = 0;
 	int i = 0;
-	length = length - 1;
 	for (i = 0; i < length; i++){
 		if (*(pattern + i) != *(data + i)){
 			result = NULL;
@@ -129,7 +130,10 @@ int main(void){
 		//gpioWrite(LEDR, 1);
 		//while(1){}
 	//}
-	assignVariablesData("/temp/olla/1/5", &tempraturaDeseadaOlla1);
+	assignVariablesData("/temp/ollags/1/5", &tempraturaDeseadaOlla1);
+	sprintf(data, "Ahora la temp es %.2f\r\n", tempraturaDeseadaOlla1);
+	stdioPrintf(UART_USB, data);
+
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
 		//if (receiveData(data)){
