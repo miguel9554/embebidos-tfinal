@@ -74,11 +74,11 @@ void configPump(pump * pump, uint8_t eduCIAAgpio){
 }
 
 void pumpOFF(pump * pump){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, pump->gpio_port, pump->gpio_pin);
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, pump->gpio_port, pump->gpio_pin);
 }
 
 void pumpON(pump * pump){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, pump->gpio_port, pump->gpio_pin);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, pump->gpio_port, pump->gpio_pin);
 }
 
 /** @} doxygen end group definition */

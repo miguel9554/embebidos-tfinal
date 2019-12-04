@@ -74,11 +74,11 @@ void configValve(valve * valve, uint8_t eduCIAAgpio){
 }
 
 void valveOpen(valve * valve){
-	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, valve->gpio_port, valve->gpio_pin);
+	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, valve->gpio_port, valve->gpio_pin);
 }
 
 void valveClose(valve * valve){
-	Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, valve->gpio_port, valve->gpio_pin);
+	Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, valve->gpio_port, valve->gpio_pin);
 }
 
 /** @} doxygen end group definition */

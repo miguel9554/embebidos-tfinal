@@ -28,6 +28,8 @@
 #define VALVE_GPIOPORT 3
 #define PUMP_GPIOPORT 4
 
+#define __USE_WEB (false)
+
 /*==================[internal functions declaration]=========================*/
 
 void initSystem(temperature_sensor *, temperature_sensor *, heater *, heater *, valve *, level_sensor *, pump *);
@@ -62,6 +64,7 @@ void initSystem(temperature_sensor * olla1_tempSensor, temperature_sensor * olla
 	configValve(valve, VALVE_GPIOPORT);
 	configPump(bomba, PUMP_GPIOPORT);
 
+	#if ( __USE_WEB == true)
 	stdioPrintf(UART_USB, "Configurando servidor web...");
 	if (configWebServer()){
 		gpioWrite(LEDG, 1);
@@ -69,6 +72,7 @@ void initSystem(temperature_sensor * olla1_tempSensor, temperature_sensor * olla
 		gpioWrite(LEDR, 1);
 		while(1){}
 	}
+	#endif
 }
 
 void calentarOlla(temperature_sensor * tempSensor, heater * heater, int temperaturaDeseada){
@@ -127,7 +131,9 @@ int main(void){
 	// VARIABLES VARIAS
 	bool programReadyToStart = false;
 	char str[100];
+	#if ( __USE_WEB == true)
 	char data[BUFFER_LEN];
+	#endif
 
 	// VARIABLES DE CONTROL
 	float tempraturaDeseadaOlla1 = 30;						// /temp/olla/1/<valor>
@@ -161,11 +167,13 @@ int main(void){
 	gpioWrite(LEDR, 1);
 
 	while(!programReadyToStart){
+		#if ( __USE_WEB == true)
 		if (receiveData(data)){
 			assignVariablesData(data, &tempraturaDeseadaOlla1, &macerado_minutos_reposo, &tempPrimerPerfilTemperatura,
 						&minutosReposoPrimerPerfilTemperatura, &tempSegundoPerfilTemperatura, &minutosReposoSegundoPerfilTemperatura,
 						&tempTercerPerfilTemperatura, &minutosReposoTercerPerfilTemperatura);
 		}
+		#endif
 		if (!gpioRead(TEC1)){
 			programReadyToStart = true;
 		}
