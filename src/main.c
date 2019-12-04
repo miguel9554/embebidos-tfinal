@@ -4,6 +4,8 @@
 #include "sapi.h"
 #include "heater.h"
 #include "ds18b20.h"
+#include "level.h"
+#include "valve.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -13,11 +15,14 @@
 
 #define OLLA1_HEATER_GPIOPORT 2
 #define OLLA1_TEMPSENSOR_GPIOPORT 0
+#define OLLA2_LEVELSENSOR_GPIOPORT 1
+#define VALVE_GPIOPORT 3
 
 /*==================[internal functions declaration]=========================*/
 
+void initSystem(temperature_sensor *, heater *, valve *, level_sensor *);
 void calentarOlla(temperature_sensor *, heater *, int);
-void initSystem(temperature_sensor *, heater *);
+void llenarOlla(valve *, level_sensor *);
 
 /*==================[internal data definition]===============================*/
 
@@ -25,7 +30,7 @@ void initSystem(temperature_sensor *, heater *);
 
 /*==================[internal functions definition]==========================*/
 
-void initSystem(temperature_sensor * olla1_tempSensor, heater * olla1_calentador){
+void initSystem(temperature_sensor * olla1_tempSensor, heater * olla1_calentador, valve *valve, level_sensor * olla2_level_sensor){
 
 	// Inicializar la placa
 	boardConfig();
@@ -37,9 +42,11 @@ void initSystem(temperature_sensor * olla1_tempSensor, heater * olla1_calentador
 	tickConfig( 50 );
 
 	// Inicializamos los sensores/actuadores
-
 	owInit(olla1_tempSensor, OLLA1_TEMPSENSOR_GPIOPORT);
 	configHeater(olla1_calentador, OLLA1_HEATER_GPIOPORT);
+	configLevelSensor(olla2_level_sensor, OLLA2_LEVELSENSOR_GPIOPORT);
+	configValve(valve, VALVE_GPIOPORT);
+
 }
 
 void calentarOlla(temperature_sensor * tempSensor, heater * heater, int temperaturaDeseada){
@@ -71,6 +78,18 @@ void calentarOlla(temperature_sensor * tempSensor, heater * heater, int temperat
 	heaterOFF(heater);
 }
 
+void llenarOlla(valve * valve, level_sensor * olla2_level_sensor){
+
+	bool level_reached = false;
+
+	valveOpen(valve);
+	while(!level_reached){
+		level_reached = readLevelSensor(olla2_level_sensor);
+	}
+	valveClose(valve);
+
+}
+
 /*==================[external functions definition]==========================*/
 
 /* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
@@ -86,10 +105,11 @@ int main(void){
 	// SENSORES Y ACTUADORES
 	temperature_sensor olla1_tempSensor;
 	heater olla1_calentador;
-
+	level_sensor olla2_level_sensor;
+	valve valve;
 
 	// iniciamos el sistema
-	initSystem(&olla1_tempSensor, &olla1_calentador);
+	initSystem(&olla1_tempSensor, &olla1_calentador, &valve, &olla2_level_sensor);
 
 	stdioPrintf(UART_USB, WELCOME_MESSAGE);
 
@@ -111,20 +131,30 @@ int main(void){
 		}
 	}
 
-	// indicamos que el proceso empezo, y que estamos en la etapa 1
+	/********************************** ETAPA 1 **********************************/
+
+	// indicamos el estado
 	gpioWrite(LEDR, 0);
 	gpioWrite(LEDG, 1);
 	gpioWrite(LED3, 1);
-
 	stdioPrintf(UART_USB, "Empezando a calentar Olla 1\r\n");
 
-	// calentamos la olla 1
+	// calentamos la olla
 	calentarOlla(&olla1_tempSensor, &olla1_calentador, tempraturaDeseadaOlla1);
 
+	// indicamos que termino la etapa
 	stdioPrintf(UART_USB, "Olla 1 calentada\r\n");
+	gpioWrite(LED3, 0);
 
-	// led de etapa 2
-	// llenarOlla();
+	/********************************** ETAPA 2 **********************************/
+
+	// indicamos el estado
+	gpioWrite(LED2, 1);
+	stdioPrintf(UART_USB, "Empezamos a llenar la olla 2\r\n");
+
+	// llenamos la olla
+	llenarOlla(&valve, &olla2_level_sensor);
+	stdioPrintf(UART_USB, "Olla 2 llenada\r\n");
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
