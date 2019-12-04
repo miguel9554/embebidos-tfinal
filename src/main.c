@@ -158,13 +158,13 @@ int main(void){
 			stdioPrintf(UART_USB, "\r\nTiempo de reposo para el macerado: %d minutos\r\n", macerado_minutos_reposo);
 
 			stdioPrintf(UART_USB, "\r\nTemperatura para el primer perfil: %.2f°C\r\n", tempPrimerPerfilTemperatura);
-			stdioPrintf(UART_USB, "\r\nTiempo de reposo para el primer perfil: %d minutos\r\n", minutosReposoPrimerPerfilTemperatura);
+			stdioPrintf(UART_USB, "Tiempo de reposo para el primer perfil: %d minutos\r\n", minutosReposoPrimerPerfilTemperatura);
 
 			stdioPrintf(UART_USB, "\r\nTemperatura para el segundo perfil: %.2f°C\r\n", tempSegundoPerfilTemperatura);
-			stdioPrintf(UART_USB, "\r\nTiempo de reposo para el segundo perfil: %d minutos\r\n", minutosReposoSegundoPerfilTemperatura);
+			stdioPrintf(UART_USB, "Tiempo de reposo para el segundo perfil: %d minutos\r\n", minutosReposoSegundoPerfilTemperatura);
 
 			stdioPrintf(UART_USB, "\r\nTemperatura para el tercer perfil: %.2f°C\r\n", tempTercerPerfilTemperatura);
-			stdioPrintf(UART_USB, "\r\nTiempo de reposo para el tercer perfil: %d minutos\r\n", minutosReposoTercerPerfilTemperatura);
+			stdioPrintf(UART_USB, "Tiempo de reposo para el tercer perfil: %d minutos\r\n", minutosReposoTercerPerfilTemperatura);
 
 			delay(500);
 		}
