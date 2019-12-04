@@ -167,9 +167,9 @@ int main(void){
 			stdioPrintf(UART_USB, str);
 			stdioPrintf(UART_USB, "Tiempo de reposo para el segundo perfil: %d minutos\r\n", minutosReposoSegundoPerfilTemperatura);
 
-			sprintf(str, "\r\nTemperatura para el tercer perfil: %.2f°C\r\n\r\n", tempTercerPerfilTemperatura);
+			sprintf(str, "\r\nTemperatura para el tercer perfil: %.2f°C\r\n", tempTercerPerfilTemperatura);
 			stdioPrintf(UART_USB, str);
-			stdioPrintf(UART_USB, "Tiempo de reposo para el tercer perfil: %d minutos\r\n", minutosReposoTercerPerfilTemperatura);
+			stdioPrintf(UART_USB, "Tiempo de reposo para el tercer perfil: %d minutos\r\n\r\n", minutosReposoTercerPerfilTemperatura);
 
 			delay(500);
 
