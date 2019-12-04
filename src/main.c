@@ -117,17 +117,17 @@ int main(void){
 	char str[100];
 
 	// VARIABLES DE CONTROL
-	float tempraturaDeseadaOlla1 = 30;
-	uint8_t macerado_minutos_reposo = 2;
+	float tempraturaDeseadaOlla1 = 30;						// /temp/olla/1/<valor>
+	uint8_t macerado_minutos_reposo = 2;					// /minutos/reposo/macerado/<valor>
 
-	float tempPrimerPerfilTemperatura = 30;
-	uint8_t minutosReposoPrimerPerfilTemperatura = 2;
+	float tempPrimerPerfilTemperatura = 30;					// /temp/perfil/1/<valor>
+	uint8_t minutosReposoPrimerPerfilTemperatura = 2;		// /minutos/reposo/perfil/1/<valor>
 
-	float tempSegundoPerfilTemperatura = 30;
-	uint8_t minutosReposoSegundoPerfilTemperatura = 2;
+	float tempSegundoPerfilTemperatura = 30;				// /temp/perfil/2/<valor>
+	uint8_t minutosReposoSegundoPerfilTemperatura = 2;		// /minutos/reposo/perfil/2/<valor>
 
-	float tempTercerPerfilTemperatura = 30;
-	uint8_t minutosReposoTercerPerfilTemperatura = 2;
+	float tempTercerPerfilTemperatura = 30;					// /temp/perfil/2/<valor>
+	uint8_t minutosReposoTercerPerfilTemperatura = 2;		// /minutos/reposo/perfil/2/<valor>
 
 	// SENSORES Y ACTUADORES
 	temperature_sensor olla1_tempSensor;
@@ -267,7 +267,7 @@ int main(void){
 	calentarOlla(&olla2_tempSensor, &olla2_calentador, tempPrimerPerfilTemperatura);
 	pumpOFF(&bomba);
 	stdioPrintf(UART_USB, "Aplicacion de primera temperatura terminada.\r\n");
-	stdioPrintf(UART_USB, "Empezando primer reposo.\r\n");
+	stdioPrintf(UART_USB, "Empezando primer reposo, %d minutos.\r\n", minutosReposoPrimerPerfilTemperatura);
 	esperarMinutos(minutosReposoPrimerPerfilTemperatura);
 	stdioPrintf(UART_USB, "Primer reposo terminado.\r\n");
 
@@ -276,7 +276,7 @@ int main(void){
 	calentarOlla(&olla2_tempSensor, &olla2_calentador, tempSegundoPerfilTemperatura);
 	pumpOFF(&bomba);
 	stdioPrintf(UART_USB, "Aplicacion de segunda temperatura terminada.\r\n");
-	stdioPrintf(UART_USB, "Empezando segundo reposo.\r\n");
+	stdioPrintf(UART_USB, "Empezando segundo reposo, %d minutos.\r\n", minutosReposoSegundoPerfilTemperatura);
 	esperarMinutos(minutosReposoSegundoPerfilTemperatura);
 
 	stdioPrintf(UART_USB, "Empezando aplicacion de tercera temperatura.\r\n");
@@ -284,7 +284,7 @@ int main(void){
 	calentarOlla(&olla2_tempSensor, &olla2_calentador, tempTercerPerfilTemperatura);
 	pumpOFF(&bomba);
 	stdioPrintf(UART_USB, "Aplicacion de tercera temperatura terminada.\r\n");
-	stdioPrintf(UART_USB, "Empezando tercera reposo.\r\n");
+	stdioPrintf(UART_USB, "Empezando tercera reposo, %d minutos.\r\n", minutosReposoTercerPerfilTemperatura);
 	esperarMinutos(minutosReposoTercerPerfilTemperatura);
 
 	// indicamos que termino la etapa

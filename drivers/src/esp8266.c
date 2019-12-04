@@ -46,7 +46,7 @@
 #define ESP8266_UART UART_232
 #define ESP_BAUDRATE 115200
 // delay de 10 segundos por comando
-#define MAX_DELAY 10000
+#define MAX_DELAY 30000
 
 /*==================[internal data declaration]==============================*/
 
@@ -192,7 +192,7 @@ bool readIPdata(char * data){
 				communication_finnished = true;
 				communication_succesful = true;
 			}
-			stdioPrintf(UART_USB, "%s\r\n", buffer);
+			//stdioPrintf(UART_USB, "%s\r\n", buffer);
 			// +CIPRECVDATA:<actual_len>,<data>
 			if (buffer[0] == 'G' && buffer[1] == 'E' && buffer[2] == 'T'){
 				stdioPrintf(UART_USB, "Recibimos el GET\r\n");
@@ -220,21 +220,21 @@ bool sendTCPData(char * data){
 
 	delayConfig(&max_wait_time, MAX_DELAY);
 
-	stdioPrintf(UART_USB, "Por usar sprintf\r\n");
+	//stdioPrintf(UART_USB, "Por usar sprintf\r\n");
 	stdioSprintf(command, "AT+CIPSEND=0,%d", strlen(data));
-	stdioPrintf(UART_USB, "sprintf usada\r\n");
+	//stdioPrintf(UART_USB, "sprintf usada\r\n");
 
 	if(sendATcommand(command, "OK")){
-		stdioPrintf(UART_USB, "Request para mandar datos ok\r\n");
+		//stdioPrintf(UART_USB, "Request para mandar datos ok\r\n");
 	} else {
-		stdioPrintf(UART_USB, "ERROR: no permitio mandar datos\r\n");
+		//stdioPrintf(UART_USB, "ERROR: no permitio mandar datos\r\n");
 		return false;
 	}
 
 	if(sendATcommand(data, "SEND OK")){
-		stdioPrintf(UART_USB, "Request para mandar datos ok\r\n");
+		//stdioPrintf(UART_USB, "Request para mandar datos ok\r\n");
 	} else {
-		stdioPrintf(UART_USB, "ERROR: no permitio mandar datos\r\n");
+		//stdioPrintf(UART_USB, "ERROR: no permitio mandar datos\r\n");
 		return false;
 	}
 
@@ -248,6 +248,7 @@ bool configWebServer(){
 
 	char * command;
 	char ip_address[BUFFER_LEN];
+	bool wifiConnected = false;
 
 	uartConfig (ESP8266_UART, ESP_BAUDRATE);
 
@@ -278,11 +279,13 @@ bool configWebServer(){
 	// vacio
 	// ok
 
-	if(sendATcommand(command, "OK")){
-		stdioPrintf(UART_USB, "Conecatdo a la red OK!\r\n");
-	} else {
-		stdioPrintf(UART_USB, "ERROR: Fallamos conectando a la red\r\n");
-		return false;
+	while (!wifiConnected){
+		if(sendATcommand(command, "OK")){
+			stdioPrintf(UART_USB, "Conecatdo a la red OK!\r\n");
+			wifiConnected = true;
+		} else {
+			stdioPrintf(UART_USB, "ERROR: Fallamos conectando a la red\r\n");
+		}
 	}
 
 	command = "AT+CIPMUX=1";
@@ -340,30 +343,30 @@ bool receiveData(char * data){
 	if(readESP8266Data(buffer, buffer_len)){
 		if(buffer[1] == ',' && buffer[2] == 'C' && buffer[3] == 'O' && buffer[4] == 'N' && buffer[5] == 'N' && buffer[6] == 'E' && buffer[7] == 'C'
 				 && buffer[8] == 'T'){
-			stdioPrintf(UART_USB, "Nueva conexion: %c\r\n", buffer[0]);
+			//stdioPrintf(UART_USB, "Nueva conexion: %c\r\n", buffer[0]);
 		} else if (buffer[0] == '+' && buffer[1] == 'I' && buffer[2] == 'P' && buffer[3] == 'D'){
-			stdioPrintf(UART_USB, "Recibimos datos\r\n");
+			//stdioPrintf(UART_USB, "Recibimos datos\r\n");
 
 			if (readIPdata(data)){
 				if(sendTCPData(response)){
-					stdioPrintf(UART_USB, "Mandamos bien la respuesta\r\n");
+					//stdioPrintf(UART_USB, "Mandamos bien la respuesta\r\n");
 				} else{
-					stdioPrintf(UART_USB, "Fallamos enviando la respuesta\r\n");
+					//stdioPrintf(UART_USB, "Fallamos enviando la respuesta\r\n");
 					if(sendATcommand("AT+CIPCLOSE=0", "OK")){}
 					if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 				}
 				if(sendATcommand("AT+CIPCLOSE=0", "OK")){
-					stdioPrintf(UART_USB, "Datos leidos, cerramos la conexion\r\n");
+					//stdioPrintf(UART_USB, "Datos leidos, cerramos la conexion\r\n");
 					if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 					return true;
 				} else {
-					stdioPrintf(UART_USB, "ERROR: Fallamos cerrando la conexion\r\n");
+					//stdioPrintf(UART_USB, "ERROR: Fallamos cerrando la conexion\r\n");
 					if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 					return false;
 				}
 				if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 			} else{
-				stdioPrintf(UART_USB, "ERROR: Fallamos leyendo los datos\r\n");
+				//stdioPrintf(UART_USB, "ERROR: Fallamos leyendo los datos\r\n");
 				if(sendATcommand("AT+CIPCLOSE=0", "OK")){}
 				if(sendATcommand("AT+CIPCLOSE=1", "OK")){}
 				return false;

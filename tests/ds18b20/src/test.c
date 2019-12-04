@@ -47,7 +47,7 @@ DEBUG_PRINT_ENABLE;
 
 /* TEMP SENSOR => GPIO0 */
 
-#define TEMPERATURESENSOR_GPIOPORT 0
+#define TEMPERATURESENSOR_GPIOPORT 7
 
 
 /*==================[internal data declaration]==============================*/
