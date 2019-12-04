@@ -48,16 +48,19 @@ void calentarOlla(int temperaturaDeseada, temperature_sensor * tempSensor, heate
 	int temp = 1;
 	float fTemp = 1;
 	float fTemperaturaDeseada = temperaturaDeseada;
+	float glitchTemperature = 85;
 	delay_t delayImprimirTemp;
 
 	delayConfig(&delayImprimirTemp, 5000);
 
 	temp = owReadTemperature(tempSensor);
 	fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
+	sprintf(str, "Temperatura de la olla 1: %.2f\r\n", fTemp);
+	stdioPrintf(UART_USB, str);
 
 	heaterON(heater);
 	// evitamos el glitch de 85
-	while ((fTemperaturaDeseada > fTemp) && (fTemp != 85.0)){
+	while ((fTemperaturaDeseada > fTemp) && (fTemp != glitchTemperature)){
 		temp = owReadTemperature(tempSensor);
 		fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
 		if (delayRead(&delayImprimirTemp)){
