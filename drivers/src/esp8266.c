@@ -255,6 +255,15 @@ bool configWebServer(){
 
 	uartConfig (ESP8266_UART, ESP_BAUDRATE);
 
+	command = "AT";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Modulo respondiendo\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Modulo no responde\r\n");
+		return false;
+	}
+
 	command = "AT+CWQAP";
 
 	if(sendATcommand(command, "OK")){

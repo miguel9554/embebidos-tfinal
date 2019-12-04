@@ -9,8 +9,11 @@
 #include "valve.h"
 #include "pump.h"
 #include "esp8266.h"
+#include "webserver.h"
 
 /*==================[macros and definitions]=================================*/
+
+#define BUFFER_LEN 6000
 
 #define WELCOME_MESSAGE "BIENVENIDO.\r\n"
 #define START_INSTRUCTIONS "Para comenzar, llene la olla con el nivel deseado, y presione TEC1.\r\nPara ver los parametros cargados, presione TEC2.\r\n"
@@ -58,6 +61,14 @@ void initSystem(temperature_sensor * olla1_tempSensor, temperature_sensor * olla
 	configLevelSensor(olla2_level_sensor, OLLA2_LEVELSENSOR_GPIOPORT);
 	configValve(valve, VALVE_GPIOPORT);
 	configPump(bomba, PUMP_GPIOPORT);
+
+	stdioPrintf(UART_USB, "Configurando servidor web...");
+	if (configWebServer()){
+		gpioWrite(LEDG, 1);
+	} else{
+		gpioWrite(LEDR, 1);
+		while(1){}
+	}
 }
 
 void calentarOlla(temperature_sensor * tempSensor, heater * heater, int temperaturaDeseada){
@@ -116,6 +127,7 @@ int main(void){
 	// VARIABLES VARIAS
 	bool programReadyToStart = false;
 	char str[100];
+	char data[BUFFER_LEN];
 
 	// VARIABLES DE CONTROL
 	float tempraturaDeseadaOlla1 = 30;						// /temp/olla/1/<valor>
@@ -149,6 +161,11 @@ int main(void){
 	gpioWrite(LEDR, 1);
 
 	while(!programReadyToStart){
+		if (receiveData(data)){
+			assignVariablesData(data, &tempraturaDeseadaOlla1, &macerado_minutos_reposo, &tempPrimerPerfilTemperatura,
+						&minutosReposoPrimerPerfilTemperatura, &tempSegundoPerfilTemperatura, &minutosReposoSegundoPerfilTemperatura,
+						&tempTercerPerfilTemperatura, &minutosReposoTercerPerfilTemperatura);
+		}
 		if (!gpioRead(TEC1)){
 			programReadyToStart = true;
 		}
