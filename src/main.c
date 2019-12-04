@@ -23,6 +23,7 @@
 void initSystem(temperature_sensor *, heater *, valve *, level_sensor *);
 void calentarOlla(temperature_sensor *, heater *, int);
 void llenarOlla(valve *, level_sensor *);
+void esperarMinutos(uint8_t minutos);
 
 /*==================[internal data definition]===============================*/
 
@@ -90,6 +91,13 @@ void llenarOlla(valve * valve, level_sensor * olla2_level_sensor){
 
 }
 
+void esperarMinutos(uint8_t minutos){
+	while(minutos){
+		delay(60000);
+		minutos--;
+	}
+}
+
 /*==================[external functions definition]==========================*/
 
 /* FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE RESET. */
@@ -101,6 +109,7 @@ int main(void){
 
 	// VARIABLES DE CONTROL
 	float tempraturaDeseadaOlla1 = 30;
+	uint8_t macerado_minutos_reposo = 2;
 
 	// SENSORES Y ACTUADORES
 	temperature_sensor olla1_tempSensor;
@@ -126,12 +135,18 @@ int main(void){
 			// Temperatura olla 1
 			sprintf(str, "Temperatura objetivo de la olla 1: %.2f\r\n", tempraturaDeseadaOlla1);
 			stdioPrintf(UART_USB, str);
+			stdioPrintf(UART_USB, "Tiempo de reposo para el macerado: %d minutos\r\n", macerado_minutos_reposo);
+
 
 			delay(500);
 		}
 	}
 
+	/*****************************************************************************/
 	/********************************** ETAPA 1 **********************************/
+	/*****************************************************************************/
+
+	// etapa de calentado de olla 1
 
 	// indicamos el estado
 	gpioWrite(LEDR, 0);
@@ -146,7 +161,11 @@ int main(void){
 	stdioPrintf(UART_USB, "Olla 1 calentada\r\n");
 	gpioWrite(LED3, 0);
 
+	/*****************************************************************************/
 	/********************************** ETAPA 2 **********************************/
+	/*****************************************************************************/
+
+	// etapa de llenado de olla 2
 
 	// indicamos el estado
 	gpioWrite(LED2, 1);
@@ -154,7 +173,33 @@ int main(void){
 
 	// llenamos la olla
 	llenarOlla(&valve, &olla2_level_sensor);
+
+	// indicamos que termino la etapa
 	stdioPrintf(UART_USB, "Olla 2 llenada\r\n");
+	gpioWrite(LED2, 0);
+
+	/*****************************************************************************/
+	/********************************** ETAPA 3 **********************************/
+	/*****************************************************************************/
+
+	// etapa de llenado de olla 2
+
+	// indicamos el estado
+	gpioWrite(LEDG, 0);
+	gpioWrite(LEDR, 1);
+
+	stdioPrintf(UART_USB, "Esperando a que se coloquen los granos y se revuelva.\r\nCuando se haya terminado, presionar TEC1 para continuar el proceso.\r\n");
+
+	// esperamos a que presionen
+	while (gpioRead(TEC1)){}
+
+	stdioPrintf(UART_USB, "Etapa de reposo. Se dejara reposar por %d minutos", macerado_minutos_reposo);
+	gpioWrite(LEDR, 0);
+	gpioWrite(LEDG, 1);
+	gpioWrite(LED3, 1);
+	gpioWrite(LED2, 2);
+
+	esperarMinutos(macerado_minutos_reposo);
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
