@@ -210,7 +210,6 @@ int main(void){
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
 		if (receiveData(data)){
-			stdioPrintf(UART_USB, data);
 			assignVariablesData(data, &tempraturaDeseadaOlla1, &macerado_minutos_reposo, &tempPrimerPerfilTemperatura,
 						&minutosReposoPrimerPerfilTemperatura, &tempSegundoPerfilTemperatura, &minutosReposoSegundoPerfilTemperatura,
 						&tempTercerPerfilTemperatura, &minutosReposoTercerPerfilTemperatura);
