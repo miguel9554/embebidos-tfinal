@@ -73,13 +73,18 @@ bool readESP8266Data(char * buffer, unsigned long buffer_len){
 
 	uint8_t dato  = 0;
 	unsigned long i = 0;
+	bool communication_finnished = false;
+	bool communication_succesful = false;
+	delay_t max_wait_time;
+
+	delayConfig(&max_wait_time, 5000);
 
 
 	// buffer + i es la posición a la que vamos a escribir, es decir, una posición después de la última con algo escrito
 	// buffer + i - 1 y buffer + i - 2 son, entonces, los últimos dos elementos
 	// vamos guardando en el buffer hasta que estos sean \r y \n, lo que indica que el comando terminó
 
-	while( ! ( *(buffer + i - 1) == 10 && *(buffer + i - 2) == 13) ){
+	while( ! ( *(buffer + i - 1) == 10 && *(buffer + i - 2) == 13) && !delayRead(&max_wait_time)){
 		if(uartReadByte( UART_232, &dato )){
 			// si se lleno el buffer, lo apuntamos a NULL y devolvemos false
 			if (i > buffer_len){
@@ -92,9 +97,13 @@ bool readESP8266Data(char * buffer, unsigned long buffer_len){
 		}
 	}
 
-	*(buffer + i - 2) = '\0';
+	if (( *(buffer + i - 1) == 10 && *(buffer + i - 2) == 13)){
+		*(buffer + i - 2) = '\0';
+		return true;
+	} else {
+		return false;
+	}
 
-	return true;
 
 }
 
@@ -111,17 +120,13 @@ bool sendATcommand(char * command, char * expected_response){
 	stdioPrintf(ESP8266_UART, "%s\r\n", command);
 
 	// mandamos el comando, y esperamos la respuesta esperada o que pasen 10 segundos
-	while (! (communication_finnished)){
+	while (! (communication_finnished) && !(delayRead(&max_wait_time))){
 		if(readESP8266Data(buffer, buffer_len)){
 			if (strcmp(buffer, expected_response) == 0){
 				//stdioPrintf(UART_USB, "Recibimos el OK bien...\r\n");
 				communication_finnished = true;
 				communication_succesful = true;
 			}
-		}
-		if (delayRead(&max_wait_time)){
-			communication_finnished = true;
-			communication_succesful = false;
 		}
 	}
 
@@ -252,12 +257,30 @@ bool configWebServer(){
 
 	uartConfig (ESP8266_UART, ESP_BAUDRATE);
 
-	command = "AT+RESTORE";
+	command = "AT+CWQAP";
 
-	if(sendATcommand(command, "ready")){
-		stdioPrintf(UART_USB, "Reseteo OK\r\n");
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Desconexion OK\r\n");
 	} else {
-		stdioPrintf(UART_USB, "ERROR: Fallamos reseteando\r\n");
+		stdioPrintf(UART_USB, "ERROR: Fallamos desconectando\r\n");
+		return false;
+	}
+
+	command = "AT+CIPSERVER=0";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Cierre de servidor OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos cerrando el servidor\r\n");
+		return false;
+	}
+
+	command = "AT+CIPCLOSE=5";
+
+	if(sendATcommand(command, "OK")){
+		stdioPrintf(UART_USB, "Cierre de conexiones OK\r\n");
+	} else {
+		stdioPrintf(UART_USB, "ERROR: Fallamos cerrando conexiones\r\n");
 		return false;
 	}
 
@@ -300,12 +323,12 @@ bool configWebServer(){
 	command = "AT+CIPRECVMODE=1";
 
 	if(sendATcommand(command, "OK")){
-		stdioPrintf(UART_USB, "Seteadas modo recibo pasivo OK\r\n");
+		stdioPrintf(UART_USB, "Seteado modo recibo pasivo OK\r\n");
 	} else {
 		stdioPrintf(UART_USB, "ERROR: Fallamos seteando modo recibo pasivo\r\n");
 		return false;
 	}
-
+	/*
 	command = "AT+CIPSERVERMAXCONN=1";
 
 	if(sendATcommand(command, "OK")){
@@ -313,7 +336,7 @@ bool configWebServer(){
 	} else {
 		stdioPrintf(UART_USB, "ERROR: Fallamos seteando conexiones maximas igual a 1 \r\n");
 		return false;
-	}
+	}*/
 
 	command = "AT+CIPSERVER=1,80";
 

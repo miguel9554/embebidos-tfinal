@@ -17,7 +17,7 @@
 
 /*==================[internal functions declaration]=========================*/
 
-void assignVariablesData(char *, float *);
+void assignVariablesData(char *, float *, uint8_t *, float *, uint8_t *, float *, uint8_t *, float *, uint8_t *);
 int StrToInt(const char* );
 bool matchGET(char *, char*, uint8_t, char *);
 
@@ -38,19 +38,85 @@ char GETstring_minutosReposoTercerPerfilTemperatura[] = "/minutos/reposo/perfil/
 
 /*==================[internal functions definition]==========================*/
 
-void assignVariablesData(char * data, float * tempraturaDeseadaOlla1){
+void assignVariablesData(char * data, float * tempraturaDeseadaOlla1, uint8_t * macerado_minutos_reposo, float * tempPrimerPerfilTemperatura,
+		uint8_t * minutosReposoPrimerPerfilTemperatura, float * tempSegundoPerfilTemperatura, uint8_t * minutosReposoSegundoPerfilTemperatura,
+		float * tempTercerPerfilTemperatura, uint8_t * minutosReposoTercerPerfilTemperatura){
+
 	char result[50];
 	int tmp;
-	if(matchGET(GETstring_tempraturaDeseadaOlla1, data, 13, result)){
-		stdioPrintf(UART_USB, "Recibimos data para temp olla 1\r\n");
+	if(matchGET(GETstring_tempraturaDeseadaOlla1, data, strlen(GETstring_tempraturaDeseadaOlla1), result)){
+		stdioPrintf(UART_USB, "Recibimos una temperatura para la olla 1\r\n");
 		tmp = StrToInt(result);
 		if(tmp){
-			*tempraturaDeseadaOlla1 = (float) tmp;
+			*tempraturaDeseadaOlla1 = tmp;
 			stdioPrintf(UART_USB, "Dato OK\r\n");
 		} else {
 			stdioPrintf(UART_USB, "Dato mal...\r\n");
 		}
-	} else{
+	}else if(matchGET(GETstring_macerado_minutos_reposo, data, strlen(GETstring_macerado_minutos_reposo), result)){
+		stdioPrintf(UART_USB, "Recibimos los minutos de reposo del macerado\r\n");
+		tmp = StrToInt(result);
+		if(tmp){
+			*macerado_minutos_reposo = tmp;
+			stdioPrintf(UART_USB, "Dato OK\r\n");
+		} else {
+			stdioPrintf(UART_USB, "Dato mal...\r\n");
+		}
+	}else if(matchGET(GETstring_tempPrimerPerfilTemperatura, data, strlen(GETstring_tempPrimerPerfilTemperatura), result)){
+		stdioPrintf(UART_USB, "Recibimos la temperatura del primer perfil\r\n");
+		tmp = StrToInt(result);
+		if(tmp){
+			*tempPrimerPerfilTemperatura = tmp;
+			stdioPrintf(UART_USB, "Dato OK\r\n");
+		} else {
+			stdioPrintf(UART_USB, "Dato mal...\r\n");
+		}
+	}else if(matchGET(GETstring_minutosReposoPrimerPerfilTemperatura, data, strlen(GETstring_minutosReposoPrimerPerfilTemperatura), result)){
+		stdioPrintf(UART_USB, "Recibimos los minutos de reposo del primer perfil\r\n");
+		tmp = StrToInt(result);
+		if(tmp){
+			*minutosReposoPrimerPerfilTemperatura = tmp;
+			stdioPrintf(UART_USB, "Dato OK\r\n");
+		} else {
+			stdioPrintf(UART_USB, "Dato mal...\r\n");
+		}
+	}else if(matchGET(GETstring_tempSegundoPerfilTemperatura, data, strlen(GETstring_tempSegundoPerfilTemperatura), result)){
+		stdioPrintf(UART_USB, "Recibimos la temperatura del segundo perfil\r\n");
+		tmp = StrToInt(result);
+		if(tmp){
+			*tempSegundoPerfilTemperatura = tmp;
+			stdioPrintf(UART_USB, "Dato OK\r\n");
+		} else {
+			stdioPrintf(UART_USB, "Dato mal...\r\n");
+		}
+	}else if(matchGET(GETstring_minutosReposoSegundoPerfilTemperatura, data, strlen(GETstring_minutosReposoSegundoPerfilTemperatura), result)){
+		stdioPrintf(UART_USB, "Recibimos los minutos de reposo del segundo perfil\r\n");
+		tmp = StrToInt(result);
+		if(tmp){
+			*minutosReposoSegundoPerfilTemperatura = tmp;
+			stdioPrintf(UART_USB, "Dato OK\r\n");
+		} else {
+			stdioPrintf(UART_USB, "Dato mal...\r\n");
+		}
+	}else if(matchGET(GETstring_tempTercerPerfilTemperatura, data, strlen(GETstring_tempTercerPerfilTemperatura), result)){
+		stdioPrintf(UART_USB, "Recibimos la temperatura del tercer perfil\r\n");
+		tmp = StrToInt(result);
+		if(tmp){
+			*tempTercerPerfilTemperatura = tmp;
+			stdioPrintf(UART_USB, "Dato OK\r\n");
+		} else {
+			stdioPrintf(UART_USB, "Dato mal...\r\n");
+		}
+	}else if(matchGET(GETstring_minutosReposoTercerPerfilTemperatura, data, strlen(GETstring_minutosReposoTercerPerfilTemperatura), result)){
+		stdioPrintf(UART_USB, "Recibimos los minutos de reposo del tercer perfil\r\n");
+		tmp = StrToInt(result);
+		if(tmp){
+			*minutosReposoTercerPerfilTemperatura = tmp;
+			stdioPrintf(UART_USB, "Dato OK\r\n");
+		} else {
+			stdioPrintf(UART_USB, "Dato mal...\r\n");
+		}
+	}else{
 		stdioPrintf(UART_USB, "No matchea con nada\r\n");
 	}
 }
@@ -113,7 +179,17 @@ int StrToInt(const char* s)
 int main(void){
 
 	char data[BUFFER_LEN];
-	float tempraturaDeseadaOlla1 = 1;
+	float tempraturaDeseadaOlla1 = 30;						// /temp/olla/1/<valor>
+	uint8_t macerado_minutos_reposo = 2;					// /minutos/reposo/macerado/<valor>
+
+	float tempPrimerPerfilTemperatura = 30;					// /temp/perfil/1/<valor>
+	uint8_t minutosReposoPrimerPerfilTemperatura = 2;		// /minutos/reposo/perfil/1/<valor>
+
+	float tempSegundoPerfilTemperatura = 30;				// /temp/perfil/2/<valor>
+	uint8_t minutosReposoSegundoPerfilTemperatura = 2;		// /minutos/reposo/perfil/2/<valor>
+
+	float tempTercerPerfilTemperatura = 30;					// /temp/perfil/2/<valor>
+	uint8_t minutosReposoTercerPerfilTemperatura = 2;		// /minutos/reposo/perfil/2/<valor>
 
 	// Inicializar la placa
 	boardConfig();
@@ -124,21 +200,21 @@ int main(void){
 	// Configuramos los ticks para que se den cada 1 milisegundo
 	tickConfig( 50 );
 
-	//if (configWebServer()){
-		//gpioWrite(LEDG, 1);
-	//} else{
-		//gpioWrite(LEDR, 1);
-		//while(1){}
-	//}
-	assignVariablesData("/temp/ollags/1/5", &tempraturaDeseadaOlla1);
-	sprintf(data, "Ahora la temp es %.2f\r\n", tempraturaDeseadaOlla1);
-	stdioPrintf(UART_USB, data);
+	if (configWebServer()){
+		gpioWrite(LEDG, 1);
+	} else{
+		gpioWrite(LEDR, 1);
+		while(1){}
+	}
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
-		//if (receiveData(data)){
-			//assignVariablesData(data);
-		//}
+		if (receiveData(data)){
+			stdioPrintf(UART_USB, data);
+			assignVariablesData(data, &tempraturaDeseadaOlla1, &macerado_minutos_reposo, &tempPrimerPerfilTemperatura,
+						&minutosReposoPrimerPerfilTemperatura, &tempSegundoPerfilTemperatura, &minutosReposoSegundoPerfilTemperatura,
+						&tempTercerPerfilTemperatura, &minutosReposoTercerPerfilTemperatura);
+		}
 	}
 
 	/* NO DEBE LLEGAR NUNCA AQUI, debido a que a este programa no es llamado
