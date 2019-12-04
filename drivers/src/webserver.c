@@ -31,8 +31,8 @@ char GETstring_minutosReposoPrimerPerfilTemperatura[] = "/minutos/reposo/perfil/
 char GETstring_tempSegundoPerfilTemperatura[] = "/temp/perfil/2/"; // 15
 char GETstring_minutosReposoSegundoPerfilTemperatura[] = "/minutos/reposo/perfil/2/"; // 25
 
-char GETstring_tempTercerPerfilTemperatura[] = "/temp/perfil/2/"; // 15
-char GETstring_minutosReposoTercerPerfilTemperatura[] = "/minutos/reposo/perfil/2/"; // 25
+char GETstring_tempTercerPerfilTemperatura[] = "/temp/perfil/3/"; // 15
+char GETstring_minutosReposoTercerPerfilTemperatura[] = "/minutos/reposo/perfil/3/"; // 25
 
 /*==================[external data definition]===============================*/
 
