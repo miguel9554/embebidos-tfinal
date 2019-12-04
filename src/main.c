@@ -11,7 +11,8 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define WELCOME_MESSAGE "BIENVENIDO.\r\nPara comenzar, llene la olla con el nivel deseado, y presione TEC1.\r\nPara ver los parametros cargados, presione TEC2.\r\n"
+#define WELCOME_MESSAGE "BIENVENIDO.\r\n"
+#define START_INSTRUCTIONS "Para comenzar, llene la olla con el nivel deseado, y presione TEC1.\r\nPara ver los parametros cargados, presione TEC2.\r\n"
 
 // GPIOPORTS DE LOS SENSORES/ACTUADORES
 
@@ -141,6 +142,7 @@ int main(void){
 	initSystem(&olla1_tempSensor, &olla2_tempSensor, &olla1_calentador, &olla2_calentador, &valve, &olla2_level_sensor, &bomba);
 
 	stdioPrintf(UART_USB, WELCOME_MESSAGE);
+	stdioPrintf(UART_USB, START_INSTRUCTIONS);
 
 	// LED de status, ciclo no empezado
 	gpioWrite(LEDR, 1);
@@ -165,11 +167,13 @@ int main(void){
 			stdioPrintf(UART_USB, str);
 			stdioPrintf(UART_USB, "Tiempo de reposo para el segundo perfil: %d minutos\r\n", minutosReposoSegundoPerfilTemperatura);
 
-			sprintf(str, "\r\nTemperatura para el tercer perfil: %.2f°C\r\n", tempTercerPerfilTemperatura);
+			sprintf(str, "\r\nTemperatura para el tercer perfil: %.2f°C\r\n\r\n", tempTercerPerfilTemperatura);
 			stdioPrintf(UART_USB, str);
 			stdioPrintf(UART_USB, "Tiempo de reposo para el tercer perfil: %d minutos\r\n", minutosReposoTercerPerfilTemperatura);
 
 			delay(500);
+
+			stdioPrintf(UART_USB, START_INSTRUCTIONS);
 		}
 	}
 
