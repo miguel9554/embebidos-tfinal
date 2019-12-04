@@ -80,6 +80,7 @@ static void initHardware(temperature_sensor * tmpSensor, uint8_t eduCIAAgpio)
 int main(void)
 {
 	int temp = 1;
+	float fTemp = 1;
 	char str[20];
 	temperature_sensor tmpSensor;
 
@@ -88,7 +89,8 @@ int main(void)
 	while (1) {
 		/* read DS18B20 temperature sensor */
 		temp = owReadTemperature(&tmpSensor);
-		sprintf(str, "temp:%d.%04d\r\n", temp >> 4, (temp & 0xF) * 625);
+		fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
+		sprintf(str, "temp:%f\r\n", fTemp);
 		debugPrintString(str);
 		delay(DELAY_MS);
 	}
