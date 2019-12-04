@@ -16,7 +16,7 @@
 
 /*==================[internal functions declaration]=========================*/
 
-void calentarOlla(int, temperature_sensor *, heater *);
+void calentarOlla(temperature_sensor *, heater *, int);
 void initSystem(temperature_sensor *, heater *);
 
 /*==================[internal data definition]===============================*/
@@ -42,13 +42,13 @@ void initSystem(temperature_sensor * olla1_tempSensor, heater * olla1_calentador
 	configHeater(olla1_calentador, OLLA1_HEATER_GPIOPORT);
 }
 
-void calentarOlla(int temperaturaDeseada, temperature_sensor * tempSensor, heater * heater){
+void calentarOlla(temperature_sensor * tempSensor, heater * heater, int temperaturaDeseada){
 
 	char str[100];
 	int temp = 1;
 	float fTemp = 1;
 	float fTemperaturaDeseada = temperaturaDeseada;
-	float glitchTemperature = 85;
+	int glitchTemperature = 0x550;
 	delay_t delayImprimirTemp;
 
 	delayConfig(&delayImprimirTemp, 5000);
@@ -60,7 +60,7 @@ void calentarOlla(int temperaturaDeseada, temperature_sensor * tempSensor, heate
 
 	heaterON(heater);
 	// evitamos el glitch de 85
-	while ((fTemperaturaDeseada > fTemp) && (fTemp != glitchTemperature)){
+	while ((fTemperaturaDeseada > fTemp) && (temp != glitchTemperature)){
 		temp = owReadTemperature(tempSensor);
 		fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
 		if (delayRead(&delayImprimirTemp)){
@@ -87,10 +87,14 @@ int main(void){
 	temperature_sensor olla1_tempSensor;
 	heater olla1_calentador;
 
+
 	// iniciamos el sistema
 	initSystem(&olla1_tempSensor, &olla1_calentador);
 
 	stdioPrintf(UART_USB, WELCOME_MESSAGE);
+
+	// LED de status, ciclo no empezado
+	gpioWrite(LEDR, 1);
 
 	while(!programReadyToStart){
 		if (!gpioRead(TEC1)){
@@ -107,12 +111,20 @@ int main(void){
 		}
 	}
 
+	// indicamos que el proceso empezo, y que estamos en la etapa 1
+	gpioWrite(LEDR, 0);
+	gpioWrite(LEDG, 1);
+	gpioWrite(LED3, 1);
+
 	stdioPrintf(UART_USB, "Empezando a calentar Olla 1\r\n");
 
-	// esperamos a que se llegue a la temperatura deseada
-	calentarOlla(tempraturaDeseadaOlla1, &olla1_tempSensor, &olla1_calentador);
+	// calentamos la olla 1
+	calentarOlla(&olla1_tempSensor, &olla1_calentador, tempraturaDeseadaOlla1);
 
 	stdioPrintf(UART_USB, "Olla 1 calentada\r\n");
+
+	// led de etapa 2
+	// llenarOlla();
 
 	/* ------------- REPETIR POR SIEMPRE ------------- */
 	while(1) {
