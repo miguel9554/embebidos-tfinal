@@ -8,6 +8,7 @@
 #include "level.h"
 #include "valve.h"
 #include "pump.h"
+#include "esp8266.h"
 
 /*==================[macros and definitions]=================================*/
 
