@@ -34,7 +34,7 @@ void initSystem(temperature_sensor * olla1_tempSensor, heater * olla1_calentador
 	uartConfig(UART_USB, 115200);
 
 	// Configuramos los ticks para que se den cada 1 milisegundo
-	tickConfig( 1 );
+	tickConfig( 50 );
 
 	// Inicializamos los sensores/actuadores
 
@@ -44,6 +44,7 @@ void initSystem(temperature_sensor * olla1_tempSensor, heater * olla1_calentador
 
 void calentarOlla(int temperaturaDeseada, temperature_sensor * tempSensor, heater * heater){
 
+	char str[100];
 	int temp = 1;
 	float fTemp = 1;
 	float fTemperaturaDeseada = temperaturaDeseada;
@@ -60,7 +61,8 @@ void calentarOlla(int temperaturaDeseada, temperature_sensor * tempSensor, heate
 		temp = owReadTemperature(tempSensor);
 		fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
 		if (delayRead(&delayImprimirTemp)){
-			stdioPrintf(UART_USB, "Temperatura de la olla 1: %f", fTemp);
+			sprintf(str, "Temperatura de la olla 1: %.2f\r\n", fTemp);
+			stdioPrintf(UART_USB, str);
 		}
 	}
 	heaterOFF(heater);
@@ -73,9 +75,10 @@ int main(void){
 
 	// VARIABLES VARIAS
 	bool programReadyToStart = false;
+	char str[100];
 
 	// VARIABLES DE CONTROL
-	float tempraturaDeseadaOllaUno = 30;
+	float tempraturaDeseadaOlla1 = 30;
 
 	// SENSORES Y ACTUADORES
 	temperature_sensor olla1_tempSensor;
@@ -92,7 +95,11 @@ int main(void){
 		}
 		if (!gpioRead(TEC2)){
 			stdioPrintf(UART_USB, "Los parametros cargados son los siguientes\r\n");
-			stdioPrintf(UART_USB, "Temperatura de la olla 1: %f\r\n", tempraturaDeseadaOllaUno);
+
+			// Temperatura olla 1
+			sprintf(str, "Temperatura objetivo de la olla 1: %.2f\r\n", tempraturaDeseadaOlla1);
+			stdioPrintf(UART_USB, str);
+
 			delay(500);
 		}
 	}
@@ -100,7 +107,7 @@ int main(void){
 	stdioPrintf(UART_USB, "Empezando a calentar Olla 1\r\n");
 
 	// esperamos a que se llegue a la temperatura deseada
-	calentarOlla(tempraturaDeseadaOllaUno, &olla1_tempSensor, &olla1_calentador);
+	calentarOlla(tempraturaDeseadaOlla1, &olla1_tempSensor, &olla1_calentador);
 
 	stdioPrintf(UART_USB, "Olla 1 calentada\r\n");
 
