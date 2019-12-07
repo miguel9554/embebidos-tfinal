@@ -28,7 +28,7 @@
 #define VALVE_GPIOPORT 3
 #define PUMP_GPIOPORT 4
 
-#define __USE_WEB (false)
+#define __USE_WEB (true)
 
 /*==================[internal functions declaration]=========================*/
 

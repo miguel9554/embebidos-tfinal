@@ -298,7 +298,7 @@ bool configWebServer(){
 		return false;
 	}
 
-	command= "AT+CWJAP=\"RompeMuros\",\"Juan2019\"";
+	command= "AT+CWJAP=\"motoe5\",\"pass5495\"";
 
 	// esto manda
 	// echo
