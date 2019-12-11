@@ -97,7 +97,7 @@ void calentarOlla(temperature_sensor * tempSensor, heater * heater, int temperat
 		temp = owReadTemperature(tempSensor);
 		fTemp = (temp >> 4) + ((temp & 0xF) * 0.0625);
 		if (delayRead(&delayImprimirTemp)){
-			sprintf(str, "Temperatura de la olla 1: %.2f\r\n", fTemp);
+			sprintf(str, "Temperatura de la olla: %.2f\r\n", fTemp);
 			stdioPrintf(UART_USB, str);
 		}
 	}
